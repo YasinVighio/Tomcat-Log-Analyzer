@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Added support to get request method from Tomcat **FIRST REQUEST LINE**
 - Added support to copy cell values
 - Fixed bug log entry not being searched with time only
+- Fixed bug for timezones with negative offset
 
 #### Miscellaneous
 - Added `README.md`
