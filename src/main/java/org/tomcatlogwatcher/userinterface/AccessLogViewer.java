@@ -11,7 +11,6 @@ import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableNormalCellRend
 import org.tomcatlogwatcher.userinterface.adapters.AccessLogTableMouseAdapter;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableWrappedCellRenderer;
 import org.tomcatlogwatcher.utility.AppLogger;
-import org.tomcatlogwatcher.utility.DateUtil;
 import org.tomcatlogwatcher.utility.UIUtils;
 import org.tomcatlogwatcher.utility.Utils;
 
@@ -387,7 +386,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 AccessLogTableCellRenderer cellRenderer = (AccessLogTableCellRenderer) accessLogTbl.getColumnModel().getColumn(selectedColumnIndex).getCellRenderer();
                 if (cellRenderer.getClassType().equals(Date.class)) {
                     try {
-                        Date dateTime = DateUtil.getDateFromInputDateString(text, this.accessLogDate);
+                        Date dateTime = UIUtils.getDateFromInputDateString(text, this.accessLogDate);
                         columnFilter = RowFilter.dateFilter(UIUtils.getComparisonType(selectedCriteria), dateTime, selectedColumnModelIndex);
                     } catch (Exception pe) {
                         JOptionPane.showMessageDialog(null, "Please enter a valid number or date. Such as: " + String.join(", ", PropManager.getAllowedDateInputFormats()));

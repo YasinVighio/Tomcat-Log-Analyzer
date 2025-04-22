@@ -64,9 +64,11 @@ public class LogEntryDTO {
                 .findFirst()
                 .orElse(Constants.STRING_SEPARATOR.SPACE.getValue());
 
+        String timeZone = dateTime.substring(dateTime.indexOf(timeZoneOffset));
 
         dateTime = dateTime.substring(0, dateTime.indexOf(timeZoneOffset)).trim();
 
+        DateUtil.setDefaultJVMTimeZone(timeZone);
         //parse
         this.dateTime = DateUtil.getDateFromStringDate(dateTime, Constants.DATE_FORMATS.COMMON_LOGGING_FORMAT_WITHOUT_ZONE.getValue());
 
@@ -98,7 +100,6 @@ public class LogEntryDTO {
         this.requestMethod = Utils.removeStringDoubleQuotes(firstLineReqParts[0]);
         this.firstRequestLine = firstLineReqParts[1];
     }
-
 
     public Object getValueByApachePlaceholder(String columnApacheValue) {
         if (Utils.areStringsValid(columnApacheValue)) {

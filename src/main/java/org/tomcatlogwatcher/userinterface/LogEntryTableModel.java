@@ -3,6 +3,7 @@ package org.tomcatlogwatcher.userinterface;
 import lombok.Getter;
 import lombok.Setter;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
+import org.tomcatlogwatcher.utility.ApacheUtil;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.List;
@@ -37,11 +38,12 @@ public class LogEntryTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         LogEntryDTO logEntry = logEntries.get(rowIndex);
-        return logEntry.getValueByApachePlaceholder(getColumnValue(columnIndex));
+        return logEntry.getValueByApachePlaceholder(columnApacheValue.get(columnIndex));
     }
 
-    private String getColumnValue(int columnIndex) {
-        return columnApacheValue.get(columnIndex);
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return ApacheUtil.getClassByApachePlaceholder(columnApacheValue.get(columnIndex));
     }
 }
 

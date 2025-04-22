@@ -15,6 +15,8 @@ public class TomcatLogWatcher {
 
     private static final String APP_NAME = "Tomcat Log Analyzer";
 
+    public static boolean isDefaultJVMTimeZoneSet = false;
+
     public static void main(String[] args) {
         try {
             AppLogger.initLogger();
