@@ -11,12 +11,13 @@ import org.tomcatlogwatcher.core.PropManager;
 import org.tomcatlogwatcher.dto.AccessLogDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.userinterface.LogEntryTableModel;
+import org.tomcatlogwatcher.userinterface.handlers.TruncatedCopyHandler;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableCellRenderer;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableNormalCellRenderer;
 import org.tomcatlogwatcher.userinterface.adapters.AccessLogTableMouseAdapter;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableWrappedCellRenderer;
+import org.tomcatlogwatcher.userinterface.renderers.TextTruncateCellRenderer;
 import org.tomcatlogwatcher.utility.AppLogger;
-import org.tomcatlogwatcher.utility.DateUtil;
 import org.tomcatlogwatcher.utility.UIUtils;
 import org.tomcatlogwatcher.utility.Utils;
 
@@ -25,6 +26,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -35,6 +37,8 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
     private static RowFilter<TableModel, Object> tableFilter = null;
     private static TableRowSorter<TableModel> tableSorter = null;
     private Date accessLogDate = null;
+    private Map<Integer, TableCellRenderer> columnRendererMap = new HashMap<>();
+    private Map<Integer, List<String>> columnTruncatedTexts = new HashMap<>();
 
     /**
      * Creates new form AccessLogViewScreen
@@ -73,6 +77,9 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         searchButton = new javax.swing.JButton();
         reqMethodLbl = new javax.swing.JLabel();
         reqMethodSelector = new javax.swing.JComboBox<>();
+        removeTextField = new javax.swing.JTextField();
+        removeTextBtn = new javax.swing.JButton();
+        removeTextResetBtn = new javax.swing.JButton();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -84,10 +91,20 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
 
         fileNameField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         fileNameField.setEnabled(false);
+        fileNameField.setMaximumSize(new java.awt.Dimension(480, 25));
+        fileNameField.setMinimumSize(new java.awt.Dimension(480, 25));
+        fileNameField.setName(""); // NOI18N
+        fileNameField.setPreferredSize(new java.awt.Dimension(480, 25));
 
         patternField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        patternField.setMaximumSize(new java.awt.Dimension(480, 25));
+        patternField.setMinimumSize(new java.awt.Dimension(480, 25));
+        patternField.setPreferredSize(new java.awt.Dimension(480, 25));
 
         searchField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        searchField.setMaximumSize(new java.awt.Dimension(480, 25));
+        searchField.setMinimumSize(new java.awt.Dimension(480, 25));
+        searchField.setPreferredSize(new java.awt.Dimension(480, 25));
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel1.setText("Value");
@@ -100,6 +117,9 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
 
         pickFileBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         pickFileBtn.setText("PICK FILE");
+        pickFileBtn.setMaximumSize(new java.awt.Dimension(145, 25));
+        pickFileBtn.setMinimumSize(new java.awt.Dimension(145, 25));
+        pickFileBtn.setPreferredSize(new java.awt.Dimension(145, 25));
         pickFileBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pickFileBtnActionPerformed(evt);
@@ -109,6 +129,12 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         processFileBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         processFileBtn.setText("PROCESS FILE");
         processFileBtn.setEnabled(false);
+        processFileBtn.setMaximumSize(new java.awt.Dimension(145, 25));
+        processFileBtn.setMinimumSize(new java.awt.Dimension(145, 25));
+        processFileBtn.setPreferredSize(new java.awt.Dimension(145, 25));
+
+        customizeAccessLogTable();
+
         processFileBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 processFileBtnActionPerformed(evt);
@@ -120,9 +146,15 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         jScrollPane1.setViewportView(accessLogTbl);
 
         columnSelector.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        columnSelector.setMaximumSize(new java.awt.Dimension(140, 25));
+        columnSelector.setMinimumSize(new java.awt.Dimension(140, 25));
+        columnSelector.setPreferredSize(new java.awt.Dimension(140, 25));
 
         clearFilterBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         clearFilterBtn.setText("CLEAR FILTER");
+        clearFilterBtn.setMaximumSize(new java.awt.Dimension(130, 25));
+        clearFilterBtn.setMinimumSize(new java.awt.Dimension(130, 25));
+        clearFilterBtn.setPreferredSize(new java.awt.Dimension(130, 25));
         clearFilterBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 clearFilterBtnActionPerformed(evt);
@@ -131,6 +163,9 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
 
         criteriaSelector.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         criteriaSelector.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "LIKE", "GT", "LT", "EQ", "NE" }));
+        criteriaSelector.setMaximumSize(new java.awt.Dimension(130, 25));
+        criteriaSelector.setMinimumSize(new java.awt.Dimension(130, 25));
+        criteriaSelector.setPreferredSize(new java.awt.Dimension(130, 25));
 
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel4.setText("Criteria");
@@ -143,9 +178,15 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
 
         disjunctionSelector.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         disjunctionSelector.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "OR", "AND" }));
+        disjunctionSelector.setMaximumSize(new java.awt.Dimension(130, 25));
+        disjunctionSelector.setMinimumSize(new java.awt.Dimension(130, 25));
+        disjunctionSelector.setPreferredSize(new java.awt.Dimension(130, 25));
 
         searchButton.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         searchButton.setText("SEARCH");
+        searchButton.setMaximumSize(new java.awt.Dimension(130, 25));
+        searchButton.setMinimumSize(new java.awt.Dimension(130, 25));
+        searchButton.setPreferredSize(new java.awt.Dimension(130, 25));
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchButtonActionPerformed(evt);
@@ -156,99 +197,133 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         reqMethodLbl.setText("Method");
 
         reqMethodSelector.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        reqMethodSelector.setMaximumSize(new java.awt.Dimension(130, 25));
+        reqMethodSelector.setMinimumSize(new java.awt.Dimension(130, 25));
+        reqMethodSelector.setPreferredSize(new java.awt.Dimension(130, 25));
 
-        customizeAccessLogTable();
+        removeTextField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        removeTextField.setPreferredSize(new java.awt.Dimension(65, 30));
+
+        removeTextBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        removeTextBtn.setText("REMOVE TEXT");
+        removeTextBtn.setMaximumSize(new java.awt.Dimension(130, 25));
+        removeTextBtn.setMinimumSize(new java.awt.Dimension(130, 25));
+        removeTextBtn.setPreferredSize(new java.awt.Dimension(130, 25));
+        removeTextBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeTextBtnActionPerformed(evt);
+            }
+        });
+
+        removeTextResetBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        removeTextResetBtn.setText("RESET TEXT");
+        removeTextResetBtn.setMaximumSize(new java.awt.Dimension(130, 25));
+        removeTextResetBtn.setMinimumSize(new java.awt.Dimension(130, 25));
+        removeTextResetBtn.setPreferredSize(new java.awt.Dimension(130, 25));
+        removeTextResetBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeTextResetBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2))
-                                .addGap(15, 15, 15)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, 480, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(patternField, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
-                                        .addComponent(fileNameField)))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(processFileBtn)
-                                    .addComponent(pickFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addComponent(jLabel1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel5)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(columnSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(criteriaSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(disjunctionSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(reqMethodLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(reqMethodSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(49, 49, 49)
-                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 209, Short.MAX_VALUE)))
-                .addContainerGap())
+                                        .addComponent(jScrollPane1)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addComponent(jLabel5)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                                                .addComponent(columnSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(criteriaSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addGap(18, 18, 18)
+                                                                                .addComponent(reqMethodLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addGap(33, 33, 33)
+                                                                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(disjunctionSelector, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addGap(32, 32, 32)
+                                                                                .addComponent(removeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(removeTextBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(removeTextResetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(reqMethodSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addGap(34, 34, 34)
+                                                                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                        .addGroup(layout.createSequentialGroup()
+                                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                        .addComponent(jLabel2))
+                                                                                .addGap(15, 15, 15)
+                                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                                        .addComponent(searchField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                        .addComponent(patternField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                                        .addComponent(fileNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                                                        .addComponent(jLabel1))
+                                                                .addGap(18, 18, 18)
+                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                                        .addComponent(processFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                                        .addComponent(pickFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(11, 11, 11)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel3)
-                        .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(pickFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(processFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(patternField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(columnSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6)
-                    .addComponent(disjunctionSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(reqMethodLbl)
-                            .addComponent(reqMethodSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(clearFilterBtn))
-                        .addGap(5, 5, 5))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel4)
-                        .addComponent(criteriaSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 492, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(11, 11, 11)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                .addComponent(jLabel3)
+                                                .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(pickFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(processFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(patternField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel2))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel1)
+                                        .addComponent(searchField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel5)
+                                        .addComponent(columnSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel6)
+                                        .addComponent(disjunctionSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(removeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(removeTextBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(removeTextResetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel4)
+                                        .addComponent(criteriaSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(reqMethodLbl)
+                                        .addComponent(reqMethodSelector, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
         );
 
         pack();
@@ -309,6 +384,43 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         filterTable();
     }//GEN-LAST:event_searchButtonActionPerformed
 
+    private void removeTextBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTextBtnActionPerformed
+        String textToRemove = removeTextField.getText();
+
+        String selectedColumnName = (String) columnSelector.getSelectedItem();
+
+        int selectedColumnModelIndex = getColumnIndexByColumnName(selectedColumnName, true, false);
+
+        if(!columnRendererMap.containsKey(selectedColumnModelIndex)) {
+            columnRendererMap.put(selectedColumnModelIndex, accessLogTbl.getColumnModel().getColumn(selectedColumnModelIndex).getCellRenderer());
+        }
+
+        List<String> truncatedTexts = columnTruncatedTexts.get(selectedColumnModelIndex);
+        if(Utils.areStringsValid(truncatedTexts)){
+            truncatedTexts.add(textToRemove);
+        } else {
+            truncatedTexts = new ArrayList<>();
+            truncatedTexts.add(textToRemove);
+        }
+        columnTruncatedTexts.put(selectedColumnModelIndex, truncatedTexts);
+
+        accessLogTbl.getColumnModel().getColumn(selectedColumnModelIndex).setCellRenderer(new TextTruncateCellRenderer(truncatedTexts));
+        // accessLogTbl.setTransferHandler(new TruncatedCopyHandler(truncatedTexts));
+        accessLogTbl.repaint();
+    }//GEN-LAST:event_removeTextBtnActionPerformed
+
+    private void removeTextResetBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTextResetBtnActionPerformed
+        String selectedColumnName = (String) columnSelector.getSelectedItem();
+        int selectedColumnModelIndex = getColumnIndexByColumnName(selectedColumnName, true, false);
+        TableCellRenderer renderer = columnRendererMap.get(selectedColumnModelIndex);
+        if(renderer != null) {
+            accessLogTbl.getColumnModel().getColumn(selectedColumnModelIndex).setCellRenderer(renderer);
+        }
+        columnTruncatedTexts.remove(selectedColumnModelIndex);
+        // accessLogTbl.setTransferHandler(null);
+        accessLogTbl.repaint();
+    }//GEN-LAST:event_removeTextResetBtnActionPerformed
+
 
     public static String openFileDialog(JFrame parent){
         String filePath = "";
@@ -338,12 +450,12 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         if (Utils.areStringsValid(text)) {
             if (Objects.equals(selectedCriteria, "LIKE")) {
                 String regex = "(?i)" + text.replace("*", ".*");
-                columnFilter = RowFilter.regexFilter(regex, selectedColumnModelIndex);
+                columnFilter = RowFilter.regexFilter("(?i)" + Pattern.quote(text), selectedColumnIndex);
             } else {
                 AccessLogTableCellRenderer cellRenderer = (AccessLogTableCellRenderer) accessLogTbl.getColumnModel().getColumn(selectedColumnIndex).getCellRenderer();
                 if (cellRenderer.getClassType().equals(Date.class)) {
                     try {
-                        Date dateTime = DateUtil.getDateFromInputDateString(text, this.accessLogDate);
+                        Date dateTime = UIUtils.getDateFromInputDateString(text, this.accessLogDate);
                         columnFilter = RowFilter.dateFilter(UIUtils.getComparisonType(selectedCriteria), dateTime, selectedColumnModelIndex);
                     } catch (Exception pe) {
                         JOptionPane.showMessageDialog(null, "Please enter a valid number or date. Such as: " + String.join(", ", PropManager.getAllowedDateInputFormats()));
@@ -388,7 +500,7 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
     }
 
 
-    private RowFilter<TableModel, Object>  getRequestMethodFilter() {
+    private RowFilter<TableModel, Object> getRequestMethodFilter() {
         String requestMethod = (String)reqMethodSelector.getSelectedItem();
         int columnIndex = getColumnIndexByColumnName(ApacheLoggingConstants.DESC_REQUEST_METHOD, true, false);
         if(Objects.equals(requestMethod, "ANY")){
@@ -472,6 +584,9 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
     private javax.swing.JTextField patternField;
     private javax.swing.JButton pickFileBtn;
     private javax.swing.JButton processFileBtn;
+    private javax.swing.JButton removeTextBtn;
+    private javax.swing.JTextField removeTextField;
+    private javax.swing.JButton removeTextResetBtn;
     private javax.swing.JLabel reqMethodLbl;
     private javax.swing.JComboBox<String> reqMethodSelector;
     private javax.swing.JButton searchButton;
