@@ -26,4 +26,8 @@ All notable changes to this project will be documented in this file.
 - Added `CONTRIBUTING.md`
 - Renamed UI packages
 
+### Feature: FT-02 (Minor)
+- Corrected logic for search with LIKE
+- Added Support for text removal
+- Corrected logic for sorting
 ---
