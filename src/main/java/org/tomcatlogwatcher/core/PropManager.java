@@ -1,5 +1,6 @@
 package org.tomcatlogwatcher.core;
 
+import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.utility.AppLogger;
 
 import java.io.FileInputStream;

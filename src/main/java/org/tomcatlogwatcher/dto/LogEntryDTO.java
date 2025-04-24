@@ -1,8 +1,8 @@
 package org.tomcatlogwatcher.dto;
 
 import lombok.*;
-import org.tomcatlogwatcher.core.ApacheLoggingConstants;
-import org.tomcatlogwatcher.core.Constants;
+import org.tomcatlogwatcher.data.ApacheLoggingConstants;
+import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.utility.DateUtil;
 import org.tomcatlogwatcher.utility.Utils;
 

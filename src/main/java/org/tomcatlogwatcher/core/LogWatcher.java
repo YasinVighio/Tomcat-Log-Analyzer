@@ -1,5 +1,7 @@
 package org.tomcatlogwatcher.core;
 
+import org.tomcatlogwatcher.data.ApacheLoggingConstants;
+import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.dto.AccessLogDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
@@ -38,6 +40,12 @@ public class LogWatcher {
 
             actionDTO.setData(accessLogDTO);
             actionDTO.setIsSuccessful(true);
+
+            AccessLogOperations.createLogTable(accessLogDTO);
+
+            AccessLogOperations.insertLogEntries(logEntries, accessLogDTO);
+
+            //AccessLogOperations.test();
 
         } catch (Exception e) {
             AppLogger.logSevere("Exception in LogWatcher.readAccessFile", e);
@@ -156,5 +164,16 @@ public class LogWatcher {
             AppLogger.logSevere("Exception in LogWatcher.getAccessLogDateFromLogEntryDTO", e);
         }
         return accessLogDate;
+    }
+
+    public static ActionDTO filterAccessLogEntries(String sql){
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setIsSuccessful(false);
+        try {
+
+        } catch (Exception e){
+            AppLogger.logSevere("Exception in LogWatcher.filterAccessLogEntries", e);
+        }
+        return actionDTO;
     }
 }

@@ -1,6 +1,6 @@
 package org.tomcatlogwatcher.utility;
 
-import org.tomcatlogwatcher.core.Constants;
+import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.core.PropManager;
 
 import javax.swing.*;

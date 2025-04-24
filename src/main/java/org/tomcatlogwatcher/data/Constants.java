@@ -1,4 +1,4 @@
-package org.tomcatlogwatcher.core;
+package org.tomcatlogwatcher.data;
 
 public interface Constants {
 

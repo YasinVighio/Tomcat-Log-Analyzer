@@ -1,6 +1,6 @@
 package org.tomcatlogwatcher.utility;
 
-import org.tomcatlogwatcher.core.ApacheLoggingConstants;
+import org.tomcatlogwatcher.data.ApacheLoggingConstants;
 
 import java.util.Date;
 
