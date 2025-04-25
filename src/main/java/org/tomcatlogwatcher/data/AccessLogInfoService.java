@@ -193,32 +193,29 @@ public class AccessLogInfoService {
     }
 
     public static AccessLogInfoDTO getAccessLogInfoByPattern(String pattern, boolean caseSensitive) {
-        if(caseSensitive) {
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getApachePattern().equals(pattern)).findFirst().orElse(null);
-        } else {
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getApachePattern().equalsIgnoreCase(pattern)).findFirst().orElse(null);
-        }
+        return ACCESS_LOG_INFO_LIST.stream()
+                .filter(dto -> caseSensitive
+                        ? dto.getApachePattern().equals(pattern)
+                        : dto.getApachePattern().equalsIgnoreCase(pattern))
+                .findFirst()
+                .orElse(null);
     }
 
     public static AccessLogInfoDTO getAccessLogInfoByDescription(String description, boolean caseSensitive) {
-        if(caseSensitive) {
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getDescription().equals(description)).findFirst().orElse(null);
-        } else{
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getDescription().equalsIgnoreCase(description)).findFirst().orElse(null);
-        }
+        return ACCESS_LOG_INFO_LIST.stream()
+                .filter(dto -> caseSensitive
+                        ? dto.getDescription().equals(description)
+                        : dto.getDescription().equalsIgnoreCase(description))
+                .findFirst()
+                .orElse(null);
     }
 
     public static AccessLogInfoDTO getAccessLogInfoByDbColumn(String dbColumnName, boolean caseSensitive) {
-        if(caseSensitive){
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getDbColumnName().equals(dbColumnName)).findFirst().orElse(null);
-        } else {
-            return ACCESS_LOG_INFO_LIST.stream().filter(dto ->
-                    dto.getDbColumnName().equalsIgnoreCase(dbColumnName)).findFirst().orElse(null);
-        }
+        return ACCESS_LOG_INFO_LIST.stream()
+                .filter(dto -> caseSensitive
+                        ? dto.getDbColumnName().equals(dbColumnName)
+                        : dto.getDbColumnName().equalsIgnoreCase(dbColumnName))
+                .findFirst()
+                .orElse(null);
     }
 }

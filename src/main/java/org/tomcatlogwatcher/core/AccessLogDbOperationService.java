@@ -17,9 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AccessLogDbOperationService {
-    public static ActionDTO saveLogsInDb(List<LogEntryDTO> logEntries) {
-        return null;
-    }
 
     public static void createLogTable(AccessLogDTO accessLogDTO) {
         try {
@@ -62,7 +59,7 @@ public class AccessLogDbOperationService {
             }
         }
 
-        String sql = "INSERT INTO access_log VALUES (" + placeholdersBuilder.toString() + ")";
+        String sql = new StringBuilder("INSERT INTO access_log VALUES (").append(placeholdersBuilder).append(")").toString();
 
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -165,44 +162,5 @@ public class AccessLogDbOperationService {
         }
         return actionDTO;
     }
-
-
-    public static void test() {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM access_log where request like '%manageFolioPayment%'";
-
-        try {
-            conn = DBConnector.getConnection();
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
-            ResultSetMetaData metaData = rs.getMetaData();
-            int columnCount = metaData.getColumnCount();
-
-            while (rs.next()) {
-                System.out.println("---- Access Log Entry ----");
-                for (int i = 1; i <= columnCount; i++) {
-                    String columnName = metaData.getColumnName(i);
-                    Object value = rs.getObject(i);
-                    System.out.println(columnName + ": " + value);
-                }
-            }
-
-        } catch (Exception e) {
-            AppLogger.logSevere("Exception in AccessLogOperations.test", e);
-        } finally {
-            try {
-                if (rs != null)
-                    rs.close();
-                if (pstmt != null) pstmt.close();
-                DBConnector.closeConnection(conn);
-            } catch (Exception e) {
-                AppLogger.logSevere("Exception in AccessLogOperations.test", e);
-            }
-        }
-    }
-
 
 }

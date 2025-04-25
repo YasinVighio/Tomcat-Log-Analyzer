@@ -33,11 +33,7 @@ import java.util.List;
  */
 public class AccessLogViewer extends javax.swing.JFrame {
 
-    private static RowFilter<TableModel, Object> tableFilter = null;
     private static TableRowSorter<TableModel> tableSorter = null;
-    private Date accessLogDate = null;
-    private Map<Integer, TableCellRenderer> columnRendererMap = new HashMap<>();
-    private Map<Integer, List<String>> columnTruncatedTexts = new HashMap<>();
 
     /**
      * Creates new form AccessLogViewScreen
@@ -296,8 +292,6 @@ public class AccessLogViewer extends javax.swing.JFrame {
 
                 //accessLogDTO.getRequestMethods().add(0, "ANY");
 
-                accessLogDate = accessLogDTO.getAccessLogDate();
-
                 accessLogTbl.setModel(logEntryTableModel);
 
                 tableSorter = new TableRowSorter<>(accessLogTbl.getModel()); // Initialize sorter
@@ -364,31 +358,6 @@ public class AccessLogViewer extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
         }
-    }
-
-
-    private int getColumnIndexByColumnName(String columnName, Boolean modelIndex, Boolean viewIndex) {
-        Enumeration<TableColumn> columns = accessLogTbl.getColumnModel().getColumns();
-
-        int index = -1;
-        int i = 0;
-
-        while (columns.hasMoreElements()) {
-            TableColumn column = columns.nextElement();
-            if (columnName.equals(column.getHeaderValue().toString())) {
-                index = i;
-                break;
-            }
-            i++;
-        }
-        index = index >= 0 ? index : 0;
-
-        if(Boolean.TRUE.equals(modelIndex)) {
-            index = accessLogTbl.convertColumnIndexToModel(index);
-        } else if(Boolean.TRUE.equals(viewIndex)) {
-            index = accessLogTbl.convertColumnIndexToView(index);
-        }
-        return index;
     }
 
     private void customizeAccessLogTable() {

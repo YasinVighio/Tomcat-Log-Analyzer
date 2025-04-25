@@ -29,9 +29,3 @@ If you encounter any issues, please report them via the **GitHub Issues** page o
 
 ## 📜 **License**
 This project is open-source. Feel free to use and contribute!
-
-![img.png](screenshots/img.png)
-
-![img_1.png](screenshots/img_1.png)
-
-![img_2.png](screenshots/img_2.png)

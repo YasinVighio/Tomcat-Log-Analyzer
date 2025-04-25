@@ -109,32 +109,6 @@ public interface ApacheLoggingConstants {
         put(REQUEST_START_TIME, REQ_START_TIME_COL);
     }});
 
-    Map<String, String> LOG_DB_COL_DESC_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {{
-        put(REMOTE_IP_COL, DESC_REMOTE_IP);
-        put(LOCAL_IP_COL, DESC_LOCAL_IP);
-        put(BYTES_SENT_HEADER_COL, DESC_BYTES_SENT_WITH_HEADERS);
-        put(BYTES_SENT_COL, DESC_BYTES_SENT_WITHOUT_HEADERS);
-        put(REMOTE_HOST_COL, DESC_REMOTE_HOST);
-        put(REQ_PROTOCOL_COL, DESC_REQUEST_PROTOCOL);
-        put(REMOTE_LOGICAL_UNAME_COL, DESC_REMOTE_LOGICAL_USERNAME);
-        put(REQ_METHOD_COL, DESC_REQUEST_METHOD);
-        put(LOCAL_PORT_COL, DESC_LOCAL_PORT);
-        put(QUERY_STR_COL, DESC_QUERY_STRING);
-        put(FIRST_LINE_REQ_COL, DESC_FIRST_REQUEST_LINE);
-        put(STS_CODE_COL, DESC_HTTP_STATUS_CODE);
-        put(USESSION_ID_COL, DESC_USER_SESSION_ID);
-        put(END_TIME_COL, DESC_DATE_TIME);
-        put(AUTH_USER_COL, DESC_REMOTE_AUTHENTICATED_USER);
-        put(REQ_URL_PATH_COL, DESC_REQUESTED_URL_PATH);
-        put(LCL_SERVER_NAME_COL, DESC_LOCAL_SERVER_NAME);
-        put(REQ_PROCESS_MS_COL, DESC_REQUEST_PROCESS_TIME_MS);
-        put(REQ_PROCESS_S_COL, DESC_REQUEST_PROCESS_TIME_S);
-        put(COMMIT_RESPONSE_TIME_MS_COL, DESC_COMMIT_RESPONSE_TIME_MS);
-        put(CURRENT_REQ_THREAD_COL, DESC_CURRENT_REQUEST_THREAD);
-        put(REQ_START_TIME_COL, DESC_REQUEST_START_TIME);
-    }});
-
-
     // Immutable Map of log format specifiers and their descriptions
     Map<String, String> LOG_FORMAT_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put(REMOTE_IP, DESC_REMOTE_IP);
