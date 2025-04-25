@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 public class DBConnector {
 
     private static final String DB_DRIVER = "org.h2.Driver";
-    private static final String JDBC_URL = "jdbc:h2:mem:ac_log;DB_CLOSE_DELAY=-1";
+    private static final String JDBC_URL = "jdbc:h2:mem:ac_log;DB_CLOSE_DELAY=-1;IGNORECASE=TRUE";
     private static final String UNAME = "sa";
     private static final String PASS = "";
 
@@ -26,6 +26,23 @@ public class DBConnector {
             AppLogger.logSevere("Error in DBConnector.closeConnection()", e);
         }
     }
+
+    public static void closeDbObject(AutoCloseable... closeableObjs) {
+        try {
+            for(AutoCloseable closeable : closeableObjs) {
+                if (closeable != null) {
+                    if(closeable instanceof Connection) {
+                        closeConnection((Connection) closeable);
+                    } else {
+                        closeable.close();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            AppLogger.logSevere("Error in DBConnector.closeConnection()", e);
+        }
+    }
+
 
     public static void rollback(Connection conn) {
         try {

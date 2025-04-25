@@ -13,7 +13,7 @@ import java.io.FileReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class LogWatcher {
+public class AccessLogFileOperationService {
 
     private static final String COLUMN_APACHE_VALUES_IDENTIFIER = "COLUMN_APACHE_VALUES";
     private static final String TABLE_HEADER_VALUES_IDENTIFIER = "TABLE_HEADER_VALUES";
@@ -41,9 +41,9 @@ public class LogWatcher {
             actionDTO.setData(accessLogDTO);
             actionDTO.setIsSuccessful(true);
 
-            AccessLogOperations.createLogTable(accessLogDTO);
+            AccessLogDbOperationService.createLogTable(accessLogDTO);
 
-            AccessLogOperations.insertLogEntries(logEntries, accessLogDTO);
+            AccessLogDbOperationService.insertLogEntries(logEntries, accessLogDTO);
 
             //AccessLogOperations.test();
 
@@ -164,16 +164,5 @@ public class LogWatcher {
             AppLogger.logSevere("Exception in LogWatcher.getAccessLogDateFromLogEntryDTO", e);
         }
         return accessLogDate;
-    }
-
-    public static ActionDTO filterAccessLogEntries(String sql){
-        ActionDTO actionDTO = new ActionDTO();
-        actionDTO.setIsSuccessful(false);
-        try {
-
-        } catch (Exception e){
-            AppLogger.logSevere("Exception in LogWatcher.filterAccessLogEntries", e);
-        }
-        return actionDTO;
     }
 }

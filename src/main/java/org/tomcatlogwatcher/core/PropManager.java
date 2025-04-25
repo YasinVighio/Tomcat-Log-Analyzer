@@ -4,19 +4,18 @@ import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.utility.AppLogger;
 
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class PropManager {
     private static final Properties properties = new Properties();
 
     private static final String DEFAULT_PATTERN_PROP_NAME = "defaultPattern";
-    private static final String ALLOWED_DATE_INPUT_FORMATS_PROP_NAME = "allowedDateInputFormats";
+    private static final String FILTER_CASE_SENSITIVITY_PROP_NAME = "caseSensitiveColumn";
 
     private static final String START_TIME_DATE_FORMAT_PROP_NAME = "startTimeDateFormat";
     private static final String END_TIME_DATE_FORMAT_PROP_NAME = "endTimeDateFormat";
+    private static final String DEFAULT_DATE_FORMAT_PROP_NAME = "defaultDateFormat";
+
 
     private static final String PROP_FILE_PATH = "configs/app.ini";
 
@@ -39,17 +38,6 @@ public class PropManager {
         return defaultPattern;
     }
 
-    public static List<String> getAllowedDateInputFormats() {
-        List<String> allowedDateInputFormats = new ArrayList<String>();
-        try {
-            allowedDateInputFormats = Arrays.asList(properties.getProperty(ALLOWED_DATE_INPUT_FORMATS_PROP_NAME)
-                    .split(Constants.STRING_SEPARATOR.COMMA.getValue()));
-        } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
-        }
-        return allowedDateInputFormats;
-    }
-
     public static String getStartTimeDateFormat() {
         String defaultPattern = Constants.DATE_FORMATS.COMMON_LOGGING_FORMAT_WITH_MS_WITHOUT_ZONE.getValue();
         try {
@@ -68,6 +56,28 @@ public class PropManager {
             AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
         }
         return defaultPattern;
+    }
+
+    public static String getDefaultDateFormat() {
+        String defaultPattern = Constants.DATE_FORMATS.dd_MM_YYYY_HH_mm_ss.getValue();
+        try {
+            defaultPattern = properties.getProperty(DEFAULT_DATE_FORMAT_PROP_NAME);
+        } catch (Exception e){
+            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+        }
+        return defaultPattern;
+    }
+
+    public static boolean getCaseSensitiveColumn() {
+        boolean value = false;
+        try {
+            String prop = Optional.ofNullable(properties.getProperty(FILTER_CASE_SENSITIVITY_PROP_NAME))
+                    .orElse("false");
+            value = Boolean.parseBoolean(prop);
+        } catch (Exception e){
+            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+        }
+        return value;
     }
 
 }

@@ -1,20 +1,22 @@
 package org.tomcatlogwatcher.core;
 
 import org.tomcatlogwatcher.data.ApacheLoggingConstants;
+import org.tomcatlogwatcher.data.AccessLogInfoService;
 import org.tomcatlogwatcher.dataaccess.DBConnector;
+import org.tomcatlogwatcher.dataaccess.DbUtil;
 import org.tomcatlogwatcher.dto.AccessLogDTO;
+import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
 import org.tomcatlogwatcher.utility.AppLogger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import javax.swing.table.DefaultTableModel;
+import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class AccessLogOperations {
+public class AccessLogDbOperationService {
     public static ActionDTO saveLogsInDb(List<LogEntryDTO> logEntries) {
         return null;
     }
@@ -30,15 +32,17 @@ public class AccessLogOperations {
 
             String createTableSQL = generateCreateTableSQL("access_log", tableColumns, tableColumnTypes);
 
-            Connection connection = null;
+            Connection conn = null;
+            PreparedStatement pstmt = null;
             try {
-                connection = DBConnector.getConnection();
-                connection.prepareStatement(createTableSQL).executeUpdate();
+                conn = DBConnector.getConnection();
+                pstmt = conn.prepareStatement(createTableSQL);
+                pstmt.executeUpdate();
             } catch (Exception e) {
                 AppLogger.logSevere("Exception in AccessLogOperations.createLogTable while creating table", e);
-                DBConnector.rollback(connection);
+                DBConnector.rollback(conn);
             } finally {
-                DBConnector.closeConnection(connection);
+                DBConnector.closeDbObject(pstmt, conn);
             }
 
         } catch (Exception e){
@@ -82,12 +86,7 @@ public class AccessLogOperations {
             AppLogger.logSevere("Exception in AccessLogOperations.insertLogEntries", e);
             DBConnector.rollback(conn);
         } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                DBConnector.closeConnection(conn);
-            } catch (Exception e) {
-                AppLogger.logSevere("Exception in AccessLogOperations.insertLogEntries", e);
-            }
+            DBConnector.closeDbObject(pstmt, conn);
         }
     }
 
@@ -107,7 +106,7 @@ public class AccessLogOperations {
         for (int i = 0; i < columnNames.size(); i++) {
             String colName = columnNames.get(i);
             Class<?> colType = columnTypes.get(i);
-            String sqlType = mapJavaTypeToH2Type(colType);
+            String sqlType = DbUtil.mapJavaTypeToH2Type(colType);
 
             sql.append("    ").append(colName).append(" ").append(sqlType);
             if (i < columnNames.size() - 1) {
@@ -120,16 +119,53 @@ public class AccessLogOperations {
         return sql.toString();
     }
 
-    private static String mapJavaTypeToH2Type(Class<?> javaType) {
-        if (javaType == String.class) return "VARCHAR";
-        if (javaType == Integer.class || javaType == int.class) return "INT";
-        if (javaType == Long.class || javaType == long.class) return "BIGINT";
-        if (javaType == Double.class || javaType == double.class) return "DOUBLE";
-        if (javaType == Float.class || javaType == float.class) return "REAL";
-        if (javaType == Boolean.class || javaType == boolean.class) return "BOOLEAN";
-        if (javaType == java.sql.Timestamp.class || javaType == java.util.Date.class) return "TIMESTAMP";
-        return "VARCHAR";
+    public static ActionDTO getFilteredAccessLogEntries(String sql) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        ActionDTO actionDTO = new ActionDTO();
+        actionDTO.setIsSuccessful(false);
+        DefaultTableModel tableModel = null;
+        try {
+            conn = DBConnector.getConnection();
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            String[] columnNames = new String[columnCount];
+            for (int i = 1; i <= columnCount; i++) {
+                columnNames[i - 1] = Optional.ofNullable(AccessLogInfoService.getAccessLogInfoByDbColumn(metaData.getColumnName(i), false))
+                        .map(AccessLogInfoDTO::getDescription)
+                        .orElse(metaData.getColumnName(i));
+            }
+
+            tableModel = new DefaultTableModel(columnNames, 0);
+
+            while (rs.next()) {
+                Object[] row = new Object[columnCount];
+                for (int i = 1; i <= columnCount; i++) {
+                    row[i - 1] = rs.getObject(i);
+                }
+                tableModel.addRow(row);
+            }
+            actionDTO.setIsSuccessful(true);
+            actionDTO.setData(tableModel);
+        } catch (SQLException e) {
+            AppLogger.logSevere("Exception in AccessLogOperations.getFilteredAccessLogEntries", e);
+            actionDTO.setIsSuccessful(false);
+            actionDTO.setMessage(e.getMessage());
+        } catch (Exception e) {
+            AppLogger.logSevere("Exception in AccessLogOperations.getFilteredAccessLogEntries", e);
+            actionDTO.setIsSuccessful(false);
+            actionDTO.setMessage("Error occurred while executing query: " + sql);
+        } finally {
+            DBConnector.closeDbObject(rs, pstmt, conn);
+        }
+        return actionDTO;
     }
+
 
     public static void test() {
         Connection conn = null;

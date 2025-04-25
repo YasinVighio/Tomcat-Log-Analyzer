@@ -1,6 +1,6 @@
 package org.tomcatlogwatcher.userinterface.adapters;
 
-import org.tomcatlogwatcher.core.PropManager;
+import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.utility.DateUtil;
 
 import javax.swing.*;
@@ -80,7 +80,7 @@ public class AccessLogTableMouseAdapter extends MouseInputAdapter {
         if (value != null) {
             String copyValue = "";
             if(value instanceof Date){
-                String dateFormat = PropManager.getAllowedDateInputFormats().get(0);
+                String dateFormat = Constants.DATE_FORMATS.COMMON_LOGGING_FORMAT.getValue();
                 copyValue = DateUtil.convertDateToString((Date) value, dateFormat);
             } else {
                 copyValue = value.toString();

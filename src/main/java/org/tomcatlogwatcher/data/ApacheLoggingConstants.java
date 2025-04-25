@@ -55,23 +55,23 @@ public interface ApacheLoggingConstants {
     String DESC_CURRENT_REQUEST_THREAD = "Current Request Thread";
 
     // db table cols
-    String REMOTE_IP_COL = "remote_ip_addr";
-    String LOCAL_IP_COL = "lcl_ip_addr";
+    String REMOTE_IP_COL = "remote_ip";
+    String LOCAL_IP_COL = "local_ip";
     String BYTES_SENT_HEADER_COL = "bytes_sent_header";
     String BYTES_SENT_COL = "bytes_sent";
-    String REMOTE_HOST_COL = "remote_host_name";
+    String REMOTE_HOST_COL = "remote_host";
     String REQ_PROTOCOL_COL = "req_protocol";
     String REMOTE_LOGICAL_UNAME_COL = "remote_logical_username";
     String REQ_METHOD_COL = "req_method";
-    String LOCAL_PORT_COL = "lcl_port";
+    String LOCAL_PORT_COL = "local_port";
     String QUERY_STR_COL = "query_string";
-    String FIRST_LINE_REQ_COL = "request";
+    String FIRST_LINE_REQ_COL = "req";
     String STS_CODE_COL = "http_status_code";
     String USESSION_ID_COL = "user_session_id";
-    String END_TIME_COL = "request_end_time";
+    String END_TIME_COL = "req_end_time";
     String AUTH_USER_COL = "remote_auth_user";
     String REQ_URL_PATH_COL = "req_url_path";
-    String LCL_SERVER_NAME_COL = "lcl_server_name";
+    String LCL_SERVER_NAME_COL = "local_server_name";
     String REQ_PROCESS_MS_COL = "req_process_ms";
     String REQ_PROCESS_S_COL = "req_process_sec";
     String COMMIT_RESPONSE_TIME_MS_COL = "commit_response_time_ms";

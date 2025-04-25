@@ -4,17 +4,21 @@
  */
 package org.tomcatlogwatcher.userinterface;
 
+import org.tomcatlogwatcher.core.AccessLogDbOperationService;
+import org.tomcatlogwatcher.data.AccessLogInfoService;
 import org.tomcatlogwatcher.data.ApacheLoggingConstants;
 import org.tomcatlogwatcher.data.Constants;
-import org.tomcatlogwatcher.core.LogWatcher;
+import org.tomcatlogwatcher.core.AccessLogFileOperationService;
 import org.tomcatlogwatcher.core.PropManager;
 import org.tomcatlogwatcher.dto.AccessLogDTO;
+import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableCellRenderer;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableNormalCellRenderer;
 import org.tomcatlogwatcher.userinterface.adapters.AccessLogTableMouseAdapter;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableWrappedCellRenderer;
 import org.tomcatlogwatcher.utility.AppLogger;
+import org.tomcatlogwatcher.utility.UIUtils;
 import org.tomcatlogwatcher.utility.Utils;
 
 import javax.swing.*;
@@ -66,8 +70,13 @@ public class AccessLogViewer extends javax.swing.JFrame {
         sqlText = new javax.swing.JTextArea();
         jLabel7 = new javax.swing.JLabel();
         statusLbl = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
         jScrollPane4 = new javax.swing.JScrollPane();
         columnNameLbl = new javax.swing.JTextPane();
+        jLabel4 = new javax.swing.JLabel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        outputBox = new javax.swing.JTextPane();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -148,6 +157,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
         });
 
         sqlText.setColumns(20);
+        sqlText.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
         sqlText.setRows(5);
         jScrollPane2.setViewportView(sqlText);
 
@@ -156,12 +166,24 @@ public class AccessLogViewer extends javax.swing.JFrame {
 
         statusLbl.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel1.setText("TABLE NAME: access_log");
+
         columnNameLbl.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         columnNameLbl.setContentType("text/html"); // NOI18N
         columnNameLbl.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         columnNameLbl.setText("");
-        columnNameLbl.setEditable(false);
         jScrollPane4.setViewportView(columnNameLbl);
+
+        jScrollPane3.setViewportView(jScrollPane4);
+
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setText("OUTPUT");
+
+        outputBox.setContentType("text/html"); // NOI18N
+        outputBox.setText("");
+        outputBox.setToolTipText("");
+        jScrollPane5.setViewportView(outputBox);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -173,36 +195,45 @@ public class AccessLogViewer extends javax.swing.JFrame {
                     .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel7))
-                        .addGap(15, 15, 15)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel7))
+                                .addGap(15, 15, 15)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(patternField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(fileNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGap(28, 28, 28)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(processFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
+                                            .addComponent(pickFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                            .addComponent(statusLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(47, 47, 47)
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(patternField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(fileNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(28, 28, 28)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(processFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                                    .addComponent(pickFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(statusLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                            .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE))
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 5, Short.MAX_VALUE)))
+                                    .addComponent(jScrollPane3)
+                                    .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
+                                    .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 9, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(32, 32, 32)
+                        .addGap(35, 35, 35)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
                             .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -212,21 +243,28 @@ public class AccessLogViewer extends javax.swing.JFrame {
                             .addComponent(patternField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2)
                             .addComponent(processFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(statusLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(9, 9, 9)
+                        .addComponent(statusLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(jLabel7))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 239, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel4))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jScrollPane5))))
+                .addGap(14, 14, 14)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -247,7 +285,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
         this.searchButton.setEnabled(false);
         this.clearFilterBtn.setEnabled(false);
         Runnable r = () -> {
-            ActionDTO actionDTO = LogWatcher.readAccessFile(fileNameField.getText(), pattern);
+            ActionDTO actionDTO = AccessLogFileOperationService.readAccessFile(fileNameField.getText(), pattern);
             if (actionDTO.getIsSuccessful()) {
                 AccessLogDTO accessLogDTO = (AccessLogDTO) actionDTO.getData();
                 LogEntryTableModel logEntryTableModel = new LogEntryTableModel(accessLogDTO.getLogEntries());
@@ -256,7 +294,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
 
                 setDbColumnNames(accessLogDTO.getColumnApacheValues());
 
-                accessLogDTO.getRequestMethods().add(0, "ANY");
+                //accessLogDTO.getRequestMethods().add(0, "ANY");
 
                 accessLogDate = accessLogDTO.getAccessLogDate();
 
@@ -265,14 +303,6 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 tableSorter = new TableRowSorter<>(accessLogTbl.getModel()); // Initialize sorter
                 accessLogTbl.setRowSorter(tableSorter);
 
-                for (int i = 0; i < accessLogTbl.getColumnCount(); i++) {
-
-                    String apacheColumnVal = accessLogDTO.getColumnApacheValues().get(i);
-
-                    Class logDataType = ApacheLoggingConstants.LOG_DATA_TYPE_MAP.get(apacheColumnVal);
-
-                    setAccessLogTableCellRenderer(apacheColumnVal, logDataType, i);
-                }
                 searchButton.setEnabled(true);
                 clearFilterBtn.setEnabled(true);
             } else {
@@ -314,7 +344,26 @@ public class AccessLogViewer extends javax.swing.JFrame {
     }
     private void filterTable() {
         String sql = this.sqlText.getText();
+        if(UIUtils.validateDQL(sql)) {
 
+            ActionDTO actionDTO = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
+
+            if(actionDTO.getIsSuccessful()) {
+                accessLogTbl.setModel((TableModel) actionDTO.getData());
+                accessLogTbl.setRowSorter(new TableRowSorter<>(accessLogTbl.getModel()));
+
+                for (int i = 0; i < accessLogTbl.getColumnCount(); i++) {
+                    String columnName = accessLogTbl.getColumnName(i);
+                    AccessLogInfoDTO infoDTO = AccessLogInfoService.getAccessLogInfoByDescription(columnName, false);
+                    setAccessLogTableCellRenderer(i, infoDTO);
+                }
+                outputBox.setText("Query executed successfully");
+            } else {
+                outputBox.setText(actionDTO.getMessage());
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
 
@@ -350,26 +399,31 @@ public class AccessLogViewer extends javax.swing.JFrame {
         accessLogTbl.addMouseMotionListener(mouseAdapter);
     }
 
-    private void setAccessLogTableCellRenderer(String apacheColumnVal, Class<?> logDataType, int cellIndex) {
+    private void setAccessLogTableCellRenderer(int cellIndex, AccessLogInfoDTO infoDTO) {
         AccessLogTableCellRenderer tableCellRenderer = null;
+        if(infoDTO!=null) {
+            if (Boolean.TRUE.equals(infoDTO.getIsLongText())) {
+                tableCellRenderer = new AccessLogTableWrappedCellRenderer();
+            } else {
+                tableCellRenderer = new AccessLogTableNormalCellRenderer();
+                String apacheColumnVal = infoDTO.getApachePattern();
+                if (Objects.equals(apacheColumnVal, ApacheLoggingConstants.DATE_TIME) ||
+                        Objects.equals(apacheColumnVal, ApacheLoggingConstants.REQUEST_START_TIME)) {
 
-        if(Objects.equals(apacheColumnVal, ApacheLoggingConstants.FIRST_REQUEST_LINE)) {
-            tableCellRenderer = new AccessLogTableWrappedCellRenderer();
+                    String dateFormat = Objects.equals(apacheColumnVal, ApacheLoggingConstants.DATE_TIME) ?
+                            PropManager.getEndTimeDateFormat() :
+                            Objects.equals(apacheColumnVal, ApacheLoggingConstants.REQUEST_START_TIME) ?
+                                    PropManager.getStartTimeDateFormat() :
+                                    Constants.DATE_FORMATS.dd_MMM_YYYY.getValue();
+
+                    tableCellRenderer.setDateFormat(dateFormat);
+                }
+            }
+            tableCellRenderer.setClassType(infoDTO.getJavaType());
         } else {
             tableCellRenderer = new AccessLogTableNormalCellRenderer();
-            if (Objects.equals(apacheColumnVal, ApacheLoggingConstants.DATE_TIME) ||
-                    Objects.equals(apacheColumnVal, ApacheLoggingConstants.REQUEST_START_TIME)) {
-
-                String dateFormat = Objects.equals(apacheColumnVal, ApacheLoggingConstants.DATE_TIME) ?
-                        PropManager.getEndTimeDateFormat() :
-                        Objects.equals(apacheColumnVal, ApacheLoggingConstants.REQUEST_START_TIME) ?
-                                PropManager.getStartTimeDateFormat() :
-                                Constants.DATE_FORMATS.dd_MMM_YYYY.getValue();
-
-                tableCellRenderer.setDateFormat(dateFormat);
-            }
         }
-        tableCellRenderer.setClassType(logDataType);
+
         accessLogTbl.getColumnModel().getColumn(cellIndex).setCellRenderer(tableCellRenderer);
     }
 
@@ -389,12 +443,17 @@ public class AccessLogViewer extends javax.swing.JFrame {
     private javax.swing.JTextField fileNameField;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JTextPane outputBox;
     private javax.swing.JTextField patternField;
     private javax.swing.JButton pickFileBtn;
     private javax.swing.JButton processFileBtn;

@@ -1,6 +1,8 @@
 package org.tomcatlogwatcher.userinterface.renderers;
 
+import org.tomcatlogwatcher.core.PropManager;
 import org.tomcatlogwatcher.utility.DateUtil;
+import org.tomcatlogwatcher.utility.Utils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -23,6 +25,10 @@ public class AccessLogTableNormalCellRenderer extends DefaultTableCellRenderer i
     public Component getTableCellRendererComponent(JTable table,
                                                    Object value, boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
+
+        if(!Utils.areStringsValid(this.dateFormat)){
+            this.dateFormat = PropManager.getDefaultDateFormat();
+        }
         if( value instanceof Date) {
             value = DateUtil.convertDateToString((Date) value, this.dateFormat);
         }
