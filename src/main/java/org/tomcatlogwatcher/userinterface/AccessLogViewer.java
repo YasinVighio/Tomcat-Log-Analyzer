@@ -347,7 +347,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
         for (int i = 0; i < accessLogTbl.getColumnCount(); i++) {
             String columnName = accessLogTbl.getColumnName(i);
             AccessLogInfoDTO infoDTO = AccessLogInfoService.getAccessLogInfoByDescription(columnName, false);
-            dbColumnNames.add(infoDTO.getDbColumnName());
+            dbColumnNames.add(infoDTO!=null ? infoDTO.getDbColumnName().toLowerCase(): columnName.toLowerCase());
             setAccessLogTableCellRenderer(i, infoDTO);
         }
         setDbColumnNames(dbColumnNames);

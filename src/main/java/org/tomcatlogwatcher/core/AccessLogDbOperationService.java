@@ -29,14 +29,14 @@ public class AccessLogDbOperationService {
                 pstmt = conn.prepareStatement(createTableSQL);
                 pstmt.executeUpdate();
             } catch (Exception e) {
-                AppLogger.logSevere("Exception in AccessLogOperations.createLogTable while creating table", e);
+                AppLogger.logSevere("Exception in AccessLogDbOperationService.createLogTable while creating table", e);
                 DBConnector.rollback(conn);
             } finally {
                 DBConnector.closeDbObject(pstmt, conn);
             }
 
         } catch (Exception e){
-            AppLogger.logSevere("Error in AccessLogOperations.createLogTable()", e);
+            AppLogger.logSevere("Error in AccessLogDbOperationService.createLogTable()", e);
         }
     }
 
@@ -44,9 +44,9 @@ public class AccessLogDbOperationService {
         int columnCount = patternParts.size();
 
         StringBuilder placeholdersBuilder = new StringBuilder();
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i <= columnCount; i++) {
             placeholdersBuilder.append("?");
-            if (i < columnCount - 1) {
+            if (i < columnCount) {
                 placeholdersBuilder.append(", ");
             }
         }
@@ -60,9 +60,14 @@ public class AccessLogDbOperationService {
             conn = DBConnector.getConnection();
             pstmt = conn.prepareStatement(sql);
 
+            int recordId = 1;
             for (LogEntryDTO entry : logEntries) {
+                int paramIndex = 1;
+
+                pstmt.setObject(paramIndex++, recordId++);
+
                 for (int i = 0; i < columnCount; i++) {
-                    pstmt.setObject(i + 1, entry.getValueByApachePlaceholder(patternParts.get(i)));
+                    pstmt.setObject(paramIndex++, entry.getValueByApachePlaceholder(patternParts.get(i)));
                 }
 
                 pstmt.addBatch();
@@ -72,7 +77,7 @@ public class AccessLogDbOperationService {
             conn.commit();
 
         } catch (Exception e) {
-            AppLogger.logSevere("Exception in AccessLogOperations.insertLogEntries", e);
+            AppLogger.logSevere("Exception in AccessLogDbOperationService.insertLogEntries", e);
             DBConnector.rollback(conn);
         } finally {
             DBConnector.closeDbObject(pstmt, conn);
@@ -86,6 +91,8 @@ public class AccessLogDbOperationService {
         sql.append("DROP TABLE IF EXISTS ").append(tableName).append(";\n");
 
         sql.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
+
+        sql.append("    record_id BIGINT PRIMARY KEY,\n");
 
         int columnCount = 1;
         for(AccessLogInfoDTO columnInfo : columnInfoDTOs) {
@@ -135,7 +142,7 @@ public class AccessLogDbOperationService {
             actionDTO.setIsSuccessful(true);
             actionDTO.setData(tableModel);
         } catch (Exception e) {
-            AppLogger.logSevere("Exception in AccessLogOperations.getFilteredAccessLogEntries", e);
+            AppLogger.logSevere("Exception in AccessLogDbOperationService.getFilteredAccessLogEntries", e);
             actionDTO.setIsSuccessful(false);
             if(e instanceof SQLException){
                 actionDTO.setMessage(e.getMessage());

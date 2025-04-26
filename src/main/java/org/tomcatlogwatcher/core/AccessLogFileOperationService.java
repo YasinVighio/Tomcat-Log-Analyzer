@@ -51,7 +51,7 @@ public class AccessLogFileOperationService {
                 logEntries.add(getLogEntryFromLogString(line, patternParts));
             }
         } catch (Exception e) {
-            AppLogger.logSevere("Exception in LogWatcher.readAccessLogs", e);
+            AppLogger.logSevere("Exception in AccessLogFileOperationService.readAccessLogs", e);
             throw e;
         }
         return logEntries;
@@ -64,7 +64,7 @@ public class AccessLogFileOperationService {
             patternParts = Arrays.asList(pattern.split(" "));
             patternParts.replaceAll(string -> string.replace("\"", "").trim());
         } catch (Exception e){
-            AppLogger.logSevere("Exception in LogWatcher.readPattern", e);
+            AppLogger.logSevere("Exception in AccessLogFileOperationService.readPattern", e);
             throw e;
         }
         return patternParts;
@@ -96,7 +96,7 @@ public class AccessLogFileOperationService {
                 logPartCounter++;
             }
         } catch (Exception e){
-            AppLogger.logSevere("Exception in LogWatcher.getPatternData", e);
+            AppLogger.logSevere("Exception in AccessLogFileOperationService.getPatternData", e);
             throw e;
         }
         return logEntry;

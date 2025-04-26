@@ -5,6 +5,7 @@ import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.tomcatlogwatcher.data.ApacheLoggingConstants.*;
@@ -197,7 +198,7 @@ public class AccessLogInfoService {
 
     public static AccessLogInfoDTO getAccessLogInfoByPattern(String pattern) {
         return ACCESS_LOG_INFO_LIST.stream()
-                .filter(dto -> dto.getApachePattern().equalsIgnoreCase(pattern))
+                .filter(dto -> dto.getApachePattern().equals(pattern))
                 .findFirst()
                 .orElse(null);
     }
@@ -226,7 +227,7 @@ public class AccessLogInfoService {
                         .filter(dto -> dto.getApachePattern().equals(pattern))
                         .findFirst()
                         .orElse(null))
-                .filter(dto -> dto != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
