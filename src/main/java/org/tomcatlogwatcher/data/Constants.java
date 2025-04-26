@@ -1,8 +1,14 @@
 package org.tomcatlogwatcher.data;
 
+import org.tomcatlogwatcher.core.PropManager;
+
 public interface Constants {
 
+    String DEFAULT_LOG_TABLE_NAME = "access_log";
+
     String DEFAULT_PATTERN = "%h %l %u %t \"%r\" %s %b";
+
+    String ALL_SELECTION_QUERY = "select * from "+PropManager.getLogTableName();
 
     enum STRING_SEPARATOR {
         DOT("."),
@@ -55,6 +61,23 @@ public interface Constants {
         private final String value;
 
         TIME_ZONE_OFFSET(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    enum H2_DB_TYPE {
+        VARCHAR_TYPE(PropManager.getCaseSensitiveColumn() ? "VARCHAR" : "VARCHAR_IGNORECASE"),
+        INT_TYPE("INT"),
+        DOUBLE_TYPE("DOUBLE"),
+        TIMESTAMP_TYPE("TIMESTAMP");
+
+        private final String value;
+
+        H2_DB_TYPE(String value) {
             this.value = value;
         }
 

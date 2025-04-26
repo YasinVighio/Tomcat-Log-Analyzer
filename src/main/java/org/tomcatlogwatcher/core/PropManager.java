@@ -16,6 +16,8 @@ public class PropManager {
     private static final String END_TIME_DATE_FORMAT_PROP_NAME = "endTimeDateFormat";
     private static final String DEFAULT_DATE_FORMAT_PROP_NAME = "defaultDateFormat";
 
+    private static final String LOG_TABLE_PROP_NAME = "logDbTableName";
+
 
     private static final String PROP_FILE_PATH = "configs/app.ini";
 
@@ -33,7 +35,7 @@ public class PropManager {
         try {
             defaultPattern = properties.getProperty(DEFAULT_PATTERN_PROP_NAME);
         } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+            AppLogger.logSevere("Error in PropManager.getDefaultPattern", e);
         }
         return defaultPattern;
     }
@@ -43,7 +45,7 @@ public class PropManager {
         try {
             defaultPattern = properties.getProperty(START_TIME_DATE_FORMAT_PROP_NAME);
         } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+            AppLogger.logSevere("Error in PropManager.getStartTimeDateFormat", e);
         }
         return defaultPattern;
     }
@@ -53,7 +55,7 @@ public class PropManager {
         try {
             defaultPattern = properties.getProperty(END_TIME_DATE_FORMAT_PROP_NAME);
         } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+            AppLogger.logSevere("Error in PropManager.getEndTimeDateFormat", e);
         }
         return defaultPattern;
     }
@@ -63,7 +65,7 @@ public class PropManager {
         try {
             defaultPattern = properties.getProperty(DEFAULT_DATE_FORMAT_PROP_NAME);
         } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+            AppLogger.logSevere("Error in PropManager.getDefaultDateFormat", e);
         }
         return defaultPattern;
     }
@@ -75,9 +77,18 @@ public class PropManager {
                     .orElse("false");
             value = Boolean.parseBoolean(prop);
         } catch (Exception e){
-            AppLogger.logSevere("Error in PropManager.getPatchCreateSuccessMsg", e);
+            AppLogger.logSevere("Error in PropManager.getCaseSensitiveColumn", e);
         }
         return value;
     }
 
+    public static String getLogTableName() {
+        String tableName = Constants.DEFAULT_LOG_TABLE_NAME;
+        try {
+            tableName = properties.getProperty(LOG_TABLE_PROP_NAME);
+        } catch (Exception e){
+            AppLogger.logSevere("Error in PropManager.getLogTableName", e);
+        }
+        return tableName;
+    }
 }

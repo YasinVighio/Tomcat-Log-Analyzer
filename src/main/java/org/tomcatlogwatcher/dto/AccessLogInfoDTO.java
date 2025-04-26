@@ -10,8 +10,10 @@ public class AccessLogInfoDTO {
     private String apachePattern;
     private String description;
     private String dbColumnName;
-    private Boolean isLongText;
-    private Boolean isCustom;
-    private Class<?> javaType;
+
     private String sqlType;
+    private Class<?> javaType;
+
+    private boolean isLongText;
+    private boolean isCustom;
 }

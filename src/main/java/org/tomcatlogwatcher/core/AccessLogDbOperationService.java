@@ -1,10 +1,7 @@
 package org.tomcatlogwatcher.core;
 
-import org.tomcatlogwatcher.data.ApacheLoggingConstants;
 import org.tomcatlogwatcher.data.AccessLogInfoService;
 import org.tomcatlogwatcher.dataaccess.DBConnector;
-import org.tomcatlogwatcher.dataaccess.DbUtil;
-import org.tomcatlogwatcher.dto.AccessLogDTO;
 import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
@@ -14,20 +11,16 @@ import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class AccessLogDbOperationService {
 
-    public static void createLogTable(AccessLogDTO accessLogDTO) {
+    public static void createLogTable(List<String> logEntryApacheColumns) {
         try {
+            List<AccessLogInfoDTO> columnInfoDTOs = AccessLogInfoService.getAccessLogInfoDTOsByPatterns(logEntryApacheColumns);
 
-            List<String> tableColumns = accessLogDTO.getColumnApacheValues().stream()
-                    .map(ApacheLoggingConstants.LOG_DB_COL_MAP::get).collect(Collectors.toList());
+            String tableName = PropManager.getLogTableName();
 
-            List<Class> tableColumnTypes =  accessLogDTO.getColumnApacheValues().stream()
-                    .map(ApacheLoggingConstants.LOG_DATA_TYPE_MAP::get).collect(Collectors.toList());
-
-            String createTableSQL = generateCreateTableSQL("access_log", tableColumns, tableColumnTypes);
+            String createTableSQL = generateCreateTableSQL(tableName, columnInfoDTOs);
 
             Connection conn = null;
             PreparedStatement pstmt = null;
@@ -47,9 +40,8 @@ public class AccessLogDbOperationService {
         }
     }
 
-    public static void insertLogEntries(List<LogEntryDTO> logEntries, AccessLogDTO accessLogDTO) {
-        List<String> apacheColumns = accessLogDTO.getColumnApacheValues();
-        int columnCount = apacheColumns.size();
+    public static void insertLogEntries(List<LogEntryDTO> logEntries, List<String> patternParts) {
+        int columnCount = patternParts.size();
 
         StringBuilder placeholdersBuilder = new StringBuilder();
         for (int i = 0; i < columnCount; i++) {
@@ -70,7 +62,7 @@ public class AccessLogDbOperationService {
 
             for (LogEntryDTO entry : logEntries) {
                 for (int i = 0; i < columnCount; i++) {
-                    pstmt.setObject(i + 1, entry.getValueByApachePlaceholder(accessLogDTO.getColumnApacheValues().get(i)));
+                    pstmt.setObject(i + 1, entry.getValueByApachePlaceholder(patternParts.get(i)));
                 }
 
                 pstmt.addBatch();
@@ -88,30 +80,23 @@ public class AccessLogDbOperationService {
     }
 
 
-    public static String generateCreateTableSQL(String tableName, List<String> columnNames, List<Class> columnTypes) {
-        if (columnNames.size() != columnTypes.size()) {
-            throw new IllegalArgumentException("Column names and types must be the same length.");
-        }
-
+    public static String generateCreateTableSQL(String tableName, List<AccessLogInfoDTO> columnInfoDTOs) {
         StringBuilder sql = new StringBuilder();
 
         sql.append("DROP TABLE IF EXISTS ").append(tableName).append(";\n");
 
         sql.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (\n");
 
-
-        for (int i = 0; i < columnNames.size(); i++) {
-            String colName = columnNames.get(i);
-            Class<?> colType = columnTypes.get(i);
-            String sqlType = DbUtil.mapJavaTypeToH2Type(colType);
-
-            sql.append("    ").append(colName).append(" ").append(sqlType);
-            if (i < columnNames.size() - 1) {
-                sql.append(",");
-            }
-            sql.append("\n");
+        int columnCount = 1;
+        for(AccessLogInfoDTO columnInfo : columnInfoDTOs) {
+            String comma = columnCount < columnInfoDTOs.size() ? "," : "";
+            sql.append("    ")
+                    .append(columnInfo.getDbColumnName())
+                    .append(" ")
+                    .append(columnInfo.getSqlType())
+                    .append(comma).append("\n");
+            columnCount++;
         }
-
         sql.append(");");
         return sql.toString();
     }
@@ -149,14 +134,14 @@ public class AccessLogDbOperationService {
             }
             actionDTO.setIsSuccessful(true);
             actionDTO.setData(tableModel);
-        } catch (SQLException e) {
-            AppLogger.logSevere("Exception in AccessLogOperations.getFilteredAccessLogEntries", e);
-            actionDTO.setIsSuccessful(false);
-            actionDTO.setMessage(e.getMessage());
         } catch (Exception e) {
             AppLogger.logSevere("Exception in AccessLogOperations.getFilteredAccessLogEntries", e);
             actionDTO.setIsSuccessful(false);
-            actionDTO.setMessage("Error occurred while executing query: " + sql);
+            if(e instanceof SQLException){
+                actionDTO.setMessage(e.getMessage());
+            } else {
+                actionDTO.setMessage("Error occurred while executing query: " + sql);
+            }
         } finally {
             DBConnector.closeDbObject(rs, pstmt, conn);
         }

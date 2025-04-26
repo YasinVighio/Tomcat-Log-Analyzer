@@ -10,7 +10,6 @@ import org.tomcatlogwatcher.data.ApacheLoggingConstants;
 import org.tomcatlogwatcher.data.Constants;
 import org.tomcatlogwatcher.core.AccessLogFileOperationService;
 import org.tomcatlogwatcher.core.PropManager;
-import org.tomcatlogwatcher.dto.AccessLogDTO;
 import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableCellRenderer;
@@ -163,7 +162,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
         statusLbl.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel1.setText("TABLE NAME: access_log");
+        jLabel1.setText("TABLE NAME: "+PropManager.getLogTableName());
 
         columnNameLbl.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         columnNameLbl.setContentType("text/html"); // NOI18N
@@ -281,28 +280,16 @@ public class AccessLogViewer extends javax.swing.JFrame {
         this.searchButton.setEnabled(false);
         this.clearFilterBtn.setEnabled(false);
         Runnable r = () -> {
-            ActionDTO actionDTO = AccessLogFileOperationService.readAccessFile(fileNameField.getText(), pattern);
+            ActionDTO actionDTO = AccessLogFileOperationService.loadAccessLogFile(fileNameField.getText(), pattern);
             if (actionDTO.getIsSuccessful()) {
-                AccessLogDTO accessLogDTO = (AccessLogDTO) actionDTO.getData();
-                LogEntryTableModel logEntryTableModel = new LogEntryTableModel(accessLogDTO.getLogEntries());
-                logEntryTableModel.setColumnNames(accessLogDTO.getHeaders().toArray(new String[0]));
-                logEntryTableModel.setColumnApacheValue(accessLogDTO.getColumnApacheValues());
-
-                setDbColumnNames(accessLogDTO.getColumnApacheValues());
-
-                //accessLogDTO.getRequestMethods().add(0, "ANY");
-
-                accessLogTbl.setModel(logEntryTableModel);
-
-                tableSorter = new TableRowSorter<>(accessLogTbl.getModel()); // Initialize sorter
-                accessLogTbl.setRowSorter(tableSorter);
-
+                setDataInTable((AbstractTableModel) actionDTO.getData());
+                outputBox.setText("Data loaded successfully.");
                 searchButton.setEnabled(true);
                 clearFilterBtn.setEnabled(true);
             } else {
                 searchButton.setEnabled(false);
                 clearFilterBtn.setEnabled(false);
-                JOptionPane.showMessageDialog(null, actionDTO.getMessage(), "Error Message", JOptionPane.ERROR_MESSAGE);
+                outputBox.setText(actionDTO.getMessage());
             }
             statusLbl.setText("");
             processFileBtn.setEnabled(true);
@@ -315,11 +302,12 @@ public class AccessLogViewer extends javax.swing.JFrame {
     }//GEN-LAST:event_processFileBtnActionPerformed
 
     private void clearFilterBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearFilterBtnActionPerformed
-
+        filterTable(Constants.ALL_SELECTION_QUERY);
     }//GEN-LAST:event_clearFilterBtnActionPerformed
 
     private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        filterTable();
+        String sql = this.sqlText.getText();
+        filterTable(sql);
     }//GEN-LAST:event_searchButtonActionPerformed
 
 
@@ -336,21 +324,12 @@ public class AccessLogViewer extends javax.swing.JFrame {
         }
         return filePath;
     }
-    private void filterTable() {
-        String sql = this.sqlText.getText();
+
+    private void filterTable(String sql) {
         if(UIUtils.validateDQL(sql)) {
-
             ActionDTO actionDTO = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
-
             if(actionDTO.getIsSuccessful()) {
-                accessLogTbl.setModel((TableModel) actionDTO.getData());
-                accessLogTbl.setRowSorter(new TableRowSorter<>(accessLogTbl.getModel()));
-
-                for (int i = 0; i < accessLogTbl.getColumnCount(); i++) {
-                    String columnName = accessLogTbl.getColumnName(i);
-                    AccessLogInfoDTO infoDTO = AccessLogInfoService.getAccessLogInfoByDescription(columnName, false);
-                    setAccessLogTableCellRenderer(i, infoDTO);
-                }
+                setDataInTable((AbstractTableModel) actionDTO.getData());
                 outputBox.setText("Query executed successfully");
             } else {
                 outputBox.setText(actionDTO.getMessage());
@@ -358,6 +337,20 @@ public class AccessLogViewer extends javax.swing.JFrame {
         } else {
             JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void setDataInTable(AbstractTableModel tableModel) {
+        accessLogTbl.setModel(tableModel);
+        accessLogTbl.setRowSorter(new TableRowSorter<>(accessLogTbl.getModel()));
+
+        List<String> dbColumnNames = new ArrayList<>();
+        for (int i = 0; i < accessLogTbl.getColumnCount(); i++) {
+            String columnName = accessLogTbl.getColumnName(i);
+            AccessLogInfoDTO infoDTO = AccessLogInfoService.getAccessLogInfoByDescription(columnName, false);
+            dbColumnNames.add(infoDTO.getDbColumnName());
+            setAccessLogTableCellRenderer(i, infoDTO);
+        }
+        setDbColumnNames(dbColumnNames);
     }
 
     private void customizeAccessLogTable() {
@@ -371,7 +364,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
     private void setAccessLogTableCellRenderer(int cellIndex, AccessLogInfoDTO infoDTO) {
         AccessLogTableCellRenderer tableCellRenderer = null;
         if(infoDTO!=null) {
-            if (Boolean.TRUE.equals(infoDTO.getIsLongText())) {
+            if (infoDTO.isLongText()) {
                 tableCellRenderer = new AccessLogTableWrappedCellRenderer();
             } else {
                 tableCellRenderer = new AccessLogTableNormalCellRenderer();
@@ -396,10 +389,10 @@ public class AccessLogViewer extends javax.swing.JFrame {
         accessLogTbl.getColumnModel().getColumn(cellIndex).setCellRenderer(tableCellRenderer);
     }
 
-    private void setDbColumnNames(List<String> apacheColumnVals) {
+    private void setDbColumnNames(List<String> dbColumnNames) {
         StringBuilder columnLbl = new StringBuilder("<html><b>Column Names</b><br>");
-        for(String apacheColumnVal : apacheColumnVals) {
-            columnLbl.append(ApacheLoggingConstants.LOG_DB_COL_MAP.get(apacheColumnVal)).append("<br>");
+        for(String dbColName : dbColumnNames) {
+            columnLbl.append(dbColName).append("<br>");
         }
         columnLbl.append("</html>");
         this.columnNameLbl.setText(columnLbl.toString());
