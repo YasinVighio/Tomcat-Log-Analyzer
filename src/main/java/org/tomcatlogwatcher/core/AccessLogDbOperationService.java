@@ -51,7 +51,11 @@ public class AccessLogDbOperationService {
             }
         }
 
-        String sql = new StringBuilder("INSERT INTO access_log VALUES (").append(placeholdersBuilder).append(")").toString();
+        String sql = new StringBuilder("INSERT INTO ")
+                .append(PropManager.getLogTableName())
+                .append(" VALUES (")
+                .append(placeholdersBuilder)
+                .append(")").toString();
 
         Connection conn = null;
         PreparedStatement pstmt = null;
