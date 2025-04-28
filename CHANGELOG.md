@@ -26,8 +26,15 @@ All notable changes to this project will be documented in this file.
 - Added `CONTRIBUTING.md`
 - Renamed UI packages
 
-### Feature: FT-02 (Minor)
+### Version 1.0.1
+#### Feature: FT-02 (Minor)
 - Corrected logic for search with LIKE
 - Added Support for text removal
 - Corrected logic for sorting
+
+## Version 1.1.0
+
+### Feature: FT-03 
+- Changed filtering of logs to SQL (Now you can use query to filter search and sort log entries)
+- Added support for query history
 ---

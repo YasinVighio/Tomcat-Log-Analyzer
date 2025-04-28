@@ -25,6 +25,10 @@ public class AppLogger {
         logger.log(Level.SEVERE, msg, e);
     }
 
+    public static void logFatal(String msg, Throwable e){
+        logger.log(Level.SEVERE, msg, e);
+    }
+
     public static void logInfo(String msg){
         logger.log(Level.INFO, msg);
     }

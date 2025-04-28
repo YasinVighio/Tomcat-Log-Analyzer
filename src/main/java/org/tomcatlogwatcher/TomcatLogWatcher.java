@@ -1,6 +1,7 @@
 package org.tomcatlogwatcher;
 
 import org.tomcatlogwatcher.core.PropManager;
+import org.tomcatlogwatcher.dataaccess.DBConnector;
 import org.tomcatlogwatcher.userinterface.AccessLogViewer;
 import org.tomcatlogwatcher.utility.AppLogger;
 
@@ -19,16 +20,21 @@ public class TomcatLogWatcher {
 
     public static void main(String[] args) {
         try {
-            AppLogger.initLogger();
-            PropManager.initProperties();
             initApp();
+            initUI();
         } catch (Exception e) {
             AppLogger.logSevere("Error initializing app", e);
         }
 
     }
 
-    public static void initApp(){
+    public static void initApp() throws Exception {
+        AppLogger.initLogger();
+        PropManager.initProperties();
+        DBConnector.initDBConnector();
+    }
+
+    public static void initUI(){
         AccessLogViewer accessLogViewer = new AccessLogViewer();
         accessLogViewer.setTitle(APP_NAME);
         accessLogViewer.setVisible(true);

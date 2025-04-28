@@ -32,7 +32,8 @@ import java.util.List;
  */
 public class AccessLogViewer extends javax.swing.JFrame {
 
-    private static TableRowSorter<TableModel> tableSorter = null;
+    private List<String> queryHistory = new ArrayList<>();
+    private int queryPointer = -1;
 
     /**
      * Creates new form AccessLogViewScreen
@@ -48,6 +49,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
@@ -66,12 +68,13 @@ public class AccessLogViewer extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         statusLbl = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        columnNameLbl = new javax.swing.JTextPane();
         jLabel4 = new javax.swing.JLabel();
         jScrollPane5 = new javax.swing.JScrollPane();
         outputBox = new javax.swing.JTextPane();
+        prevQueryBtn = new javax.swing.JButton();
+        nextQueryBtn = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        columnNameLbl = new javax.swing.JTextPane();
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
@@ -80,6 +83,7 @@ public class AccessLogViewer extends javax.swing.JFrame {
         jCheckBoxMenuItem2.setText("jCheckBoxMenuItem2");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
         fileNameField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         fileNameField.setEnabled(false);
@@ -87,17 +91,50 @@ public class AccessLogViewer extends javax.swing.JFrame {
         fileNameField.setMinimumSize(new java.awt.Dimension(480, 25));
         fileNameField.setName(""); // NOI18N
         fileNameField.setPreferredSize(new java.awt.Dimension(480, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.ipadx = 19;
+        gridBagConstraints.ipady = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 0, 0);
+        getContentPane().add(fileNameField, gridBagConstraints);
 
         patternField.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         patternField.setMaximumSize(new java.awt.Dimension(480, 25));
         patternField.setMinimumSize(new java.awt.Dimension(480, 25));
         patternField.setPreferredSize(new java.awt.Dimension(480, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.ipadx = 19;
+        gridBagConstraints.ipady = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(14, 12, 0, 0);
+        getContentPane().add(patternField, gridBagConstraints);
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setText("Pattern");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(21, 10, 0, 0);
+        getContentPane().add(jLabel2, gridBagConstraints);
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setText("File");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 16;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(17, 10, 0, 0);
+        getContentPane().add(jLabel3, gridBagConstraints);
 
         pickFileBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         pickFileBtn.setText("PICK FILE");
@@ -109,6 +146,14 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 pickFileBtnActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 25;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(13, 18, 0, 0);
+        getContentPane().add(pickFileBtn, gridBagConstraints);
 
         processFileBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         processFileBtn.setText("PROCESS FILE");
@@ -121,10 +166,31 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 processFileBtnActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.ipadx = 25;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(17, 18, 0, 0);
+        getContentPane().add(processFileBtn, gridBagConstraints);
 
         accessLogTbl.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
         accessLogTbl.setRowHeight(50);
         jScrollPane1.setViewportView(accessLogTbl);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 11;
+        gridBagConstraints.gridwidth = 14;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 1421;
+        gridBagConstraints.ipady = 523;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 6, 9);
+        getContentPane().add(jScrollPane1, gridBagConstraints);
 
         clearFilterBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         clearFilterBtn.setText("CLEAR FILTER");
@@ -138,6 +204,14 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 clearFilterBtnActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 23, 0, 0);
+        getContentPane().add(clearFilterBtn, gridBagConstraints);
 
         searchButton.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         searchButton.setText("EXECUTE");
@@ -150,19 +224,124 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 searchButtonActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.ipadx = 20;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 23, 0, 0);
+        getContentPane().add(searchButton, gridBagConstraints);
 
         sqlText.setColumns(20);
-        sqlText.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        sqlText.setFont(new java.awt.Font("Lucida Console", 0, 14)); // NOI18N
         sqlText.setRows(5);
         jScrollPane2.setViewportView(sqlText);
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 674;
+        gridBagConstraints.ipady = 123;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(13, 12, 0, 0);
+        getContentPane().add(jScrollPane2, gridBagConstraints);
+
         jLabel7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel7.setText("SQL");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 10, 0, 0);
+        getContentPane().add(jLabel7, gridBagConstraints);
 
         statusLbl.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.ipadx = 144;
+        gridBagConstraints.ipady = 25;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(1, 23, 0, 0);
+        getContentPane().add(statusLbl, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel1.setText("TABLE NAME: "+PropManager.getLogTableName());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.ipadx = 84;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(24, 12, 0, 0);
+        getContentPane().add(jLabel1, gridBagConstraints);
+
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setText("OUTPUT");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 12;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.ipadx = 17;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(24, 42, 0, 0);
+        getContentPane().add(jLabel4, gridBagConstraints);
+
+        outputBox.setContentType("text/html"); // NOI18N
+        outputBox.setText("");
+        outputBox.setToolTipText("");
+        jScrollPane5.setViewportView(outputBox);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 11;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridheight = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 280;
+        gridBagConstraints.ipady = 175;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 18, 0, 9);
+        getContentPane().add(jScrollPane5, gridBagConstraints);
+
+        prevQueryBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        prevQueryBtn.setText("<<");
+        prevQueryBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                prevQueryBtnActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 23, 0, 0);
+        getContentPane().add(prevQueryBtn, gridBagConstraints);
+
+        nextQueryBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        nextQueryBtn.setText(">>");
+        nextQueryBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nextQueryBtnActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        getContentPane().add(nextQueryBtn, gridBagConstraints);
 
         columnNameLbl.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
         columnNameLbl.setContentType("text/html"); // NOI18N
@@ -170,99 +349,18 @@ public class AccessLogViewer extends javax.swing.JFrame {
         columnNameLbl.setText("");
         jScrollPane4.setViewportView(columnNameLbl);
 
-        jScrollPane3.setViewportView(jScrollPane4);
-
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel4.setText("OUTPUT");
-
-        outputBox.setContentType("text/html"); // NOI18N
-        outputBox.setText("");
-        outputBox.setToolTipText("");
-        jScrollPane5.setViewportView(outputBox);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel7))
-                                .addGap(15, 15, 15)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 678, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(patternField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(fileNameField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGap(28, 28, 28)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(processFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
-                                            .addComponent(pickFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                            .addComponent(statusLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 266, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(47, 47, 47)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jScrollPane3)
-                                    .addComponent(searchButton, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                                    .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 9, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel3)
-                            .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pickFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(patternField, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)
-                            .addComponent(processFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(9, 9, 9)
-                        .addComponent(statusLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(clearFilterBtn, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel7))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel4))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(searchButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jScrollPane5))))
-                .addGap(14, 14, 14)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 484, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 10;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridheight = 8;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 170;
+        gridBagConstraints.ipady = 175;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(6, 12, 0, 0);
+        getContentPane().add(jScrollPane4, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -280,20 +378,27 @@ public class AccessLogViewer extends javax.swing.JFrame {
         this.searchButton.setEnabled(false);
         this.clearFilterBtn.setEnabled(false);
         Runnable r = () -> {
-            ActionDTO actionDTO = AccessLogFileOperationService.loadAccessLogFile(fileNameField.getText(), pattern);
-            if (actionDTO.getIsSuccessful()) {
-                setDataInTable((AbstractTableModel) actionDTO.getData());
-                outputBox.setText("Data loaded successfully.");
-                searchButton.setEnabled(true);
-                clearFilterBtn.setEnabled(true);
-            } else {
-                searchButton.setEnabled(false);
-                clearFilterBtn.setEnabled(false);
-                outputBox.setText(actionDTO.getMessage());
+            try {
+                ActionDTO actionDTO = AccessLogFileOperationService.loadAccessLogFile(fileNameField.getText(), pattern);
+                if (actionDTO.getIsSuccessful()) {
+                    setDataInTable((AbstractTableModel) actionDTO.getData());
+                    outputBox.setText("Data loaded successfully.");
+                    searchButton.setEnabled(true);
+                    clearFilterBtn.setEnabled(true);
+                } else {
+                    searchButton.setEnabled(false);
+                    clearFilterBtn.setEnabled(false);
+                    outputBox.setText(actionDTO.getMessage());
+                }
+                statusLbl.setText("");
+                processFileBtn.setEnabled(true);
+            } catch (Exception e) {
+                statusLbl.setText("");
+                outputBox.setText(e.getMessage());
+                AppLogger.logSevere("Error in AccessLogViewer.processFileBtnActionPerformed()", e);
+            } finally {
+                System.gc();
             }
-            statusLbl.setText("");
-            processFileBtn.setEnabled(true);
-            System.gc();
         };
 
         Thread th = new Thread(r);
@@ -309,6 +414,20 @@ public class AccessLogViewer extends javax.swing.JFrame {
         String sql = this.sqlText.getText();
         filterTable(sql);
     }//GEN-LAST:event_searchButtonActionPerformed
+
+    private void prevQueryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevQueryBtnActionPerformed
+        if(queryPointer>0){
+            queryPointer--;
+            this.sqlText.setText(queryHistory.get(queryPointer));
+        }
+    }//GEN-LAST:event_prevQueryBtnActionPerformed
+
+    private void nextQueryBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextQueryBtnActionPerformed
+        if(queryPointer < queryHistory.size() - 1) {
+            queryPointer++;
+            this.sqlText.setText(queryHistory.get(queryPointer));
+        }
+    }//GEN-LAST:event_nextQueryBtnActionPerformed
 
 
     public static String openFileDialog(JFrame parent){
@@ -326,16 +445,23 @@ public class AccessLogViewer extends javax.swing.JFrame {
     }
 
     private void filterTable(String sql) {
-        if(UIUtils.validateDQL(sql)) {
-            ActionDTO actionDTO = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
-            if(actionDTO.getIsSuccessful()) {
-                setDataInTable((AbstractTableModel) actionDTO.getData());
-                outputBox.setText("Query executed successfully");
+        try {
+            if (UIUtils.validateDQL(sql)) {
+                this.queryHistory.add(sql);
+                this.queryPointer++;
+                ActionDTO actionDTO = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
+                if (actionDTO.getIsSuccessful()) {
+                    setDataInTable((AbstractTableModel) actionDTO.getData());
+                    outputBox.setText("Query executed successfully");
+                } else {
+                    outputBox.setText(actionDTO.getMessage());
+                }
             } else {
-                outputBox.setText(actionDTO.getMessage());
+                JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            AppLogger.logSevere("Error AccessLogViewScreen.filterTable()", e);
+            outputBox.setText(e.getMessage());
         }
     }
 
@@ -412,12 +538,13 @@ public class AccessLogViewer extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JButton nextQueryBtn;
     private javax.swing.JTextPane outputBox;
     private javax.swing.JTextField patternField;
     private javax.swing.JButton pickFileBtn;
+    private javax.swing.JButton prevQueryBtn;
     private javax.swing.JButton processFileBtn;
     private javax.swing.JButton searchButton;
     private javax.swing.JTextArea sqlText;

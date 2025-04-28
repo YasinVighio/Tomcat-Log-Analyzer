@@ -14,7 +14,9 @@ import java.util.Optional;
 
 public class AccessLogDbOperationService {
 
-    public static void createLogTable(List<String> logEntryApacheColumns) {
+    public static void createLogTable(List<String> logEntryApacheColumns) throws Exception {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
         try {
             List<AccessLogInfoDTO> columnInfoDTOs = AccessLogInfoService.getAccessLogInfoDTOsByPatterns(logEntryApacheColumns);
 
@@ -22,25 +24,20 @@ public class AccessLogDbOperationService {
 
             String createTableSQL = generateCreateTableSQL(tableName, columnInfoDTOs);
 
-            Connection conn = null;
-            PreparedStatement pstmt = null;
-            try {
-                conn = DBConnector.getConnection();
-                pstmt = conn.prepareStatement(createTableSQL);
-                pstmt.executeUpdate();
-            } catch (Exception e) {
-                AppLogger.logSevere("Exception in AccessLogDbOperationService.createLogTable while creating table", e);
-                DBConnector.rollback(conn);
-            } finally {
-                DBConnector.closeDbObject(pstmt, conn);
-            }
+            conn = DBConnector.getConnection();
+            pstmt = conn.prepareStatement(createTableSQL);
+            pstmt.executeUpdate();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             AppLogger.logSevere("Error in AccessLogDbOperationService.createLogTable()", e);
+            AppLogger.logSevere("Exception in AccessLogDbOperationService.createLogTable while creating table", e);
+            DBConnector.rollback(conn);
+        } finally {
+            DBConnector.closeDbObject(conn, pstmt);
         }
     }
 
-    public static void insertLogEntries(List<LogEntryDTO> logEntries, List<String> patternParts) {
+    public static void insertLogEntries(List<LogEntryDTO> logEntries, List<String> patternParts) throws Exception{
         int columnCount = patternParts.size();
 
         StringBuilder placeholdersBuilder = new StringBuilder();
@@ -112,7 +109,7 @@ public class AccessLogDbOperationService {
         return sql.toString();
     }
 
-    public static ActionDTO getFilteredAccessLogEntries(String sql) {
+    public static ActionDTO getFilteredAccessLogEntries(String sql) throws Exception{
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
