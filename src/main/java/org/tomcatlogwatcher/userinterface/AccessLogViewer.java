@@ -378,7 +378,6 @@ public class AccessLogViewer extends javax.swing.JFrame {
                 UIUtils.setOutputText(e.getMessage(), false, this.outputBox);
                 AppLogger.logSevere("Error in AccessLogViewer.processFileBtnActionPerformed()", e);
             } finally {
-                UIUtils.setOutputText("", true, this.outputBox);
                 System.gc();
             }
         };
@@ -424,7 +423,6 @@ public class AccessLogViewer extends javax.swing.JFrame {
             } catch (Exception e) {
                 AppLogger.logSevere("Error AccessLogViewScreen.exportData", e);
             } finally {
-                UIUtils.setOutputText("", true, this.outputBox);
                 enableDisableButtons(true);
                 System.gc();
             }
