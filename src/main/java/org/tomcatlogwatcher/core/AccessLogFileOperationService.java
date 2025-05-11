@@ -35,6 +35,11 @@ public class AccessLogFileOperationService {
             AccessLogDbOperationService.insertLogEntries(logEntries, patternParts);
 
             actionRes = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
+            if(actionRes.getIsSuccessful()) {
+                actionRes.setMessage("Successfully loaded access log file");
+            } else {
+                actionRes.setMessage("Access logs could not be loaded");
+            }
         } catch (Exception e) {
             AppLogger.logSevere("Exception in AccessLogFileOperationService.loadAccessLogFile()", e);
             actionRes.setIsSuccessful(false);

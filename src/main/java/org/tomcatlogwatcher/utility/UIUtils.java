@@ -22,4 +22,21 @@ public class UIUtils {
         return false;
     }
 
+    public static void setOutputText(String outputText, boolean isSuccessMsg, JTextPane textPane) {
+        try {
+            String color = isSuccessMsg ? "blue" : "red";
+            String htmlText = String.format(
+                    "<html><p style='color: %s; font-weight: bold; font-size: 14px;'>%s</p></html>",
+                    color,
+                    outputText
+            );
+
+            textPane.setContentType("text/html");
+            textPane.setText(htmlText);
+        } catch (Exception e) {
+            AppLogger.logSevere("Error in UIUtils.setOutputText", e);
+        }
+    }
+
+
 }

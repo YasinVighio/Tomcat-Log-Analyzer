@@ -18,6 +18,9 @@ public class PropManager {
 
     private static final String LOG_TABLE_PROP_NAME = "logDbTableName";
 
+    private static final String DEFAULT_EXCEL_FILE_PROP_NAME = "excelReportDefaultFileName";
+
+    private static final String DEFAULT_PDF_FILE_PROP_NAME = "pdfReportDefaultFileName";
 
     private static final String PROP_FILE_PATH = "configs/app.ini";
 
@@ -88,6 +91,27 @@ public class PropManager {
             tableName = properties.getProperty(LOG_TABLE_PROP_NAME);
         } catch (Exception e){
             AppLogger.logSevere("Error in PropManager.getLogTableName", e);
+        }
+        return tableName;
+    }
+
+    public static String getDefaultExcelOutputFile() {
+        String tableName = Constants.EXCEL_REPORT_DEFAULT_FILE_NAME;
+        try {
+            tableName = properties.getProperty(DEFAULT_EXCEL_FILE_PROP_NAME);
+        } catch (Exception e){
+            AppLogger.logSevere("Error in PropManager.getDefaultExcelOutputFile", e);
+        }
+        return tableName;
+    }
+
+
+    public static String getDefaultPdfOutputFile() {
+        String tableName = Constants.PDF_REPORT_DEFAULT_FILE_NAME;
+        try {
+            tableName = properties.getProperty(DEFAULT_PDF_FILE_PROP_NAME);
+        } catch (Exception e){
+            AppLogger.logSevere("Error in PropManager.getDefaultPdfOutputFile", e);
         }
         return tableName;
     }

@@ -6,6 +6,11 @@ public interface Constants {
 
     String DEFAULT_LOG_TABLE_NAME = "access_log";
 
+    String EXCEL_REPORT_DEFAULT_FILE_NAME = "data\\exported_data.xls";
+
+    String PDF_REPORT_DEFAULT_FILE_NAME = "data\\exported_data.pdf";
+
+
     String DEFAULT_PATTERN = "%h %l %u %t \"%r\" %s %b";
 
     String ALL_SELECTION_QUERY = "select * from "+PropManager.getLogTableName();

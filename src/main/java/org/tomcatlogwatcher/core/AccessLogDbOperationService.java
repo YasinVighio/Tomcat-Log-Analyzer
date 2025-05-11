@@ -5,10 +5,12 @@ import org.tomcatlogwatcher.dataaccess.DBConnector;
 import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
+import org.tomcatlogwatcher.userinterface.LogEntryTableModel;
 import org.tomcatlogwatcher.utility.AppLogger;
+import org.tomcatlogwatcher.utility.Utils;
 
-import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -115,7 +117,7 @@ public class AccessLogDbOperationService {
         ResultSet rs = null;
         ActionDTO actionDTO = new ActionDTO();
         actionDTO.setIsSuccessful(false);
-        DefaultTableModel tableModel = null;
+        LogEntryTableModel tableModel = null;
         try {
             conn = DBConnector.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -125,13 +127,18 @@ public class AccessLogDbOperationService {
             int columnCount = metaData.getColumnCount();
 
             String[] columnNames = new String[columnCount];
+            List<Class<?>> columnTypes = new ArrayList<>();
             for (int i = 1; i <= columnCount; i++) {
                 columnNames[i - 1] = Optional.ofNullable(AccessLogInfoService.getAccessLogInfoByDbColumn(metaData.getColumnName(i), false))
                         .map(AccessLogInfoDTO::getDescription)
                         .orElse(metaData.getColumnName(i));
+
+                columnTypes.add(Utils.getJavaTypeForH2Type(metaData.getColumnTypeName(i)));
             }
 
-            tableModel = new DefaultTableModel(columnNames, 0);
+            tableModel = new LogEntryTableModel(columnNames, 0);
+
+            tableModel.setColumnTypes(columnTypes);
 
             while (rs.next()) {
                 Object[] row = new Object[columnCount];
@@ -142,6 +149,7 @@ public class AccessLogDbOperationService {
             }
             actionDTO.setIsSuccessful(true);
             actionDTO.setData(tableModel);
+            actionDTO.setMessage("Query executed successfully");
         } catch (Exception e) {
             AppLogger.logSevere("Exception in AccessLogDbOperationService.getFilteredAccessLogEntries", e);
             actionDTO.setIsSuccessful(false);

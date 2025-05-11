@@ -37,4 +37,7 @@ All notable changes to this project will be documented in this file.
 ### Feature: FT-03 
 - Changed filtering of logs to SQL (Now you can use query to filter search and sort log entries)
 - Added support for query history
+
+### Feature: FT-04
+- Added support to export data to PDF or Excel
 ---
