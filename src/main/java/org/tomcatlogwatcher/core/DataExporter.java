@@ -71,7 +71,7 @@ public class DataExporter {
 
     private void initDesign() throws Exception{
         jasperDesign= new JasperDesign();
-        jasperDesign.setName("DynamicTable");
+        jasperDesign.setName("Exported Data");
         jasperDesign.setPageWidth(595);
         jasperDesign.setPageHeight(842);
         jasperDesign.setLeftMargin(20);

@@ -2,7 +2,7 @@ package org.tomcatlogwatcher;
 
 import org.tomcatlogwatcher.core.PropManager;
 import org.tomcatlogwatcher.dataaccess.DBConnector;
-import org.tomcatlogwatcher.userinterface.AccessLogViewer;
+import org.tomcatlogwatcher.userinterface.AccessLogViewScreen;
 import org.tomcatlogwatcher.utility.AppLogger;
 
 import javax.swing.*;
@@ -35,7 +35,7 @@ public class TomcatLogWatcher {
     }
 
     public static void initUI(){
-        AccessLogViewer accessLogViewer = new AccessLogViewer();
+        AccessLogViewScreen accessLogViewer = new AccessLogViewScreen();
         accessLogViewer.setTitle(APP_NAME);
         accessLogViewer.setVisible(true);
         accessLogViewer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

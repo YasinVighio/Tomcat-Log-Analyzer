@@ -1,5 +1,6 @@
 package org.tomcatlogwatcher.utility;
 
+import java.util.Collection;
 import java.util.Date;
 
 public class Utils {
@@ -14,6 +15,10 @@ public class Utils {
             }
         }
         return true;
+    }
+
+    public static boolean isCollectionNotEmpty(Collection coll) {
+        return coll != null && !coll.isEmpty();
     }
 
     public static String encloseStringInDoubleQuotes(String str) {

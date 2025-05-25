@@ -1,16 +1,10 @@
 package org.tomcatlogwatcher.utility;
 
-import org.tomcatlogwatcher.data.Constants;
-import org.tomcatlogwatcher.core.PropManager;
+
+import org.tomcatlogwatcher.dto.HTMLTextDTO;
 
 import javax.swing.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
-import java.util.Date;
-import java.util.List;
+import java.awt.*;
 
 
 public class UIUtils {
@@ -25,17 +19,34 @@ public class UIUtils {
     public static void setOutputText(String outputText, boolean isSuccessMsg, JTextPane textPane) {
         try {
             String color = isSuccessMsg ? "blue" : "red";
-            String htmlText = String.format(
-                    "<html><p style='color: %s; font-weight: bold; font-size: 14px;'>%s</p></html>",
-                    color,
-                    outputText
-            );
+
+            HTMLTextDTO htmlText = HTMLTextDTO.builder()
+                    .textColor(color)
+                    .textFontSize("14px")
+                    .textWeight("bold")
+                    .textStyle("Arial")
+                    .textParagraph(outputText)
+                    .build();
 
             textPane.setContentType("text/html");
-            textPane.setText(htmlText);
+            textPane.setText(htmlText.getGeneratedText());
         } catch (Exception e) {
             AppLogger.logSevere("Error in UIUtils.setOutputText", e);
         }
+    }
+
+    public static String openFileDialog(JFrame parent){
+        String filePath = "";
+        try{
+            FileDialog fd = new FileDialog(parent, "Open File");
+            fd.setVisible(true);
+            if(Utils.areStringsValid(fd.getFile(), fd.getDirectory())){
+                filePath = fd.getDirectory()+fd.getFile();
+            }
+        } catch (Exception e){
+            AppLogger.logSevere("Error AccessLogViewScreen.openFileDialog", e);
+        }
+        return filePath;
     }
 
 
