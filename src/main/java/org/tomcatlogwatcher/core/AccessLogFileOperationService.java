@@ -29,17 +29,11 @@ public class AccessLogFileOperationService {
 
             patternParts = patternParts.stream().filter(ptrn -> ptrn.startsWith("%")).collect(Collectors.toList());
 
-            String sql = Constants.ALL_SELECTION_QUERY;
-
             AccessLogDbOperationService.createLogTable(patternParts);
             AccessLogDbOperationService.insertLogEntries(logEntries, patternParts);
 
-            actionRes = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
-            if(actionRes.getIsSuccessful()) {
-                actionRes.setMessage("Successfully loaded access log file");
-            } else {
-                actionRes.setMessage("Access logs could not be loaded");
-            }
+            actionRes.setIsSuccessful(true);
+            actionRes.setMessage("Successfully loaded access log file");
         } catch (Exception e) {
             AppLogger.logSevere("Exception in AccessLogFileOperationService.loadAccessLogFile()", e);
             actionRes.setIsSuccessful(false);

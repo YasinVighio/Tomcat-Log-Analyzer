@@ -34,6 +34,7 @@ public class AccessLogDbOperationService {
             AppLogger.logSevere("Error in AccessLogDbOperationService.createLogTable()", e);
             AppLogger.logSevere("Exception in AccessLogDbOperationService.createLogTable while creating table", e);
             DBConnector.rollback(conn);
+            throw e;
         } finally {
             DBConnector.closeDbObject(conn, pstmt);
         }
@@ -82,6 +83,7 @@ public class AccessLogDbOperationService {
         } catch (Exception e) {
             AppLogger.logSevere("Exception in AccessLogDbOperationService.insertLogEntries", e);
             DBConnector.rollback(conn);
+            throw e;
         } finally {
             DBConnector.closeDbObject(pstmt, conn);
         }

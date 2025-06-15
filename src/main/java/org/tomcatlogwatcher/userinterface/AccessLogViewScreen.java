@@ -41,6 +41,8 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
     private String selectedFileName = null;
     private final List<String> queryHistory = new ArrayList<>();
     private int queryPointer = -1;
+    private boolean allSelection = false;
+    private boolean resetOrder = false;
 
     /**
      * Creates new form NewJFrame
@@ -86,6 +88,7 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         nextQueryBtn = new javax.swing.JButton();
         execQueryBtn = new javax.swing.JButton();
         clearFilterBtn = new javax.swing.JButton();
+        resetOrderBtn = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane7 = new javax.swing.JScrollPane();
         outputPane = new javax.swing.JTextPane();
@@ -278,19 +281,30 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
             }
         });
 
+        resetOrderBtn.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        resetOrderBtn.setText("RESET ORDER");
+        resetOrderBtn.setEnabled(false);
+        resetOrderBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetOrderBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout queryButtonsFrameLayout = new javax.swing.GroupLayout(queryButtonsFrame);
         queryButtonsFrame.setLayout(queryButtonsFrameLayout);
         queryButtonsFrameLayout.setHorizontalGroup(
             queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(queryButtonsFrameLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(queryButtonsFrameLayout.createSequentialGroup()
-                        .addComponent(prevQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nextQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(execQueryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(resetOrderBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(queryButtonsFrameLayout.createSequentialGroup()
+                            .addComponent(prevQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(nextQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(execQueryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         queryButtonsFrameLayout.setVerticalGroup(
@@ -300,11 +314,13 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
                 .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(prevQueryBtn)
                     .addComponent(nextQueryBtn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(execQueryBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(clearFilterBtn)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(resetOrderBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(execQueryBtn)
+                .addContainerGap())
         );
 
         jPanel9.add(queryButtonsFrame);
@@ -345,10 +361,11 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
             try {
                 ActionDTO actionDTO = AccessLogFileOperationService.loadAccessLogFile(selectedFileName, pattern);
                 if (actionDTO.getIsSuccessful()) {
-                    setDataInTable((LogEntryTableModel) actionDTO.getData());
+                    String sql = Constants.ALL_SELECTION_QUERY;
+                    filterTable(sql);
+                    enableDisableButtons(true);
                 }
                 UIUtils.setOutputText(actionDTO.getMessage(), actionDTO.getIsSuccessful(), this.outputPane);
-                enableDisableButtons(actionDTO.getIsSuccessful());
             } catch (Exception e) {
                 enableDisableButtons(false);
                 processFileBtn.setEnabled(true);
@@ -408,12 +425,18 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         filterTable(Constants.ALL_SELECTION_QUERY);
     }//GEN-LAST:event_clearFilterBtnActionPerformed
 
+    private void resetOrderBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetOrderBtnActionPerformed
+        this.resetOrder = true;
+        filterTable(Constants.ALL_SELECTION_QUERY);
+    }//GEN-LAST:event_resetOrderBtnActionPerformed
+
     private void enableDisableButtons(boolean enable) {
         this.processFileBtn.setEnabled(enable);
         this.exportBtn.setEnabled(enable);
         this.execQueryBtn.setEnabled(enable);
         this.clearFilterBtn.setEnabled(enable);
         this.formatSelector.setEnabled(enable);
+        this.resetOrderBtn.setEnabled(enable);
     }
 
     private void setDataInTable(AbstractTableModel tableModel) {
@@ -485,6 +508,27 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
         try {
             if (UIUtils.validateDQL(sql)) {
                 this.queryHistory.add(sql);
+
+                StringBuilder projection = new StringBuilder();
+
+                if(allSelection && !resetOrder){
+                    for(int i=0; i<accessLogTbl.getColumnCount(); i++){
+                        AccessLogInfoDTO infoDTO = AccessLogInfoService.getAccessLogInfoByDescription(accessLogTbl.getColumnName(i), false);
+                        projection.append(infoDTO !=null ? infoDTO.getDbColumnName() : accessLogTbl.getColumnName(i));
+                        if(i!=accessLogTbl.getColumnCount()-1){
+                            projection.append(", ");
+                        }
+                    }
+                }
+
+                if(sql.contains(Constants.ALL_SELECTION_QUERY)){
+                    this.allSelection = true;
+                    if(projection.length()>0) {
+                        sql = sql.replace("*", projection.toString());
+                    }
+                } else {
+                    this.allSelection = false;
+                }
                 this.queryPointer++;
                 ActionDTO actionDTO = AccessLogDbOperationService.getFilteredAccessLogEntries(sql);
                 if (actionDTO.getIsSuccessful()) {
@@ -494,6 +538,7 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Only query language is supported", "Error Message", JOptionPane.ERROR_MESSAGE);
             }
+            this.resetOrder = false;
         } catch (Exception e) {
             AppLogger.logSevere("Error AccessLogViewScreen.filterTable()", e);
             UIUtils.setOutputText(e.getMessage(), false, this.outputPane);
@@ -566,6 +611,7 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
     private javax.swing.JButton prevQueryBtn;
     private javax.swing.JButton processFileBtn;
     private javax.swing.JPanel queryButtonsFrame;
+    private javax.swing.JButton resetOrderBtn;
     private javax.swing.JTextArea sqlFld;
     private javax.swing.JTextPane tableInfoPane;
     // End of variables declaration//GEN-END:variables
