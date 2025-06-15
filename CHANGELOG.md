@@ -40,4 +40,9 @@ All notable changes to this project will be documented in this file.
 
 ### Feature: FT-04
 - Added support to export data to PDF or Excel
+
+### Feature: FT-05
+- New UI
+- Support for column and single cell selection
+- Support for column order retention
 ---

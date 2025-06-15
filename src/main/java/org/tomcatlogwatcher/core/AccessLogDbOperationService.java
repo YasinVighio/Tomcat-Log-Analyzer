@@ -5,7 +5,7 @@ import org.tomcatlogwatcher.dataaccess.DBConnector;
 import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.LogEntryDTO;
-import org.tomcatlogwatcher.userinterface.LogEntryTableModel;
+import org.tomcatlogwatcher.userinterface.models.LogEntryTableModel;
 import org.tomcatlogwatcher.utility.AppLogger;
 import org.tomcatlogwatcher.utility.Utils;
 

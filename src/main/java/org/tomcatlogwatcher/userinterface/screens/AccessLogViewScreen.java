@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package org.tomcatlogwatcher.userinterface;
+package org.tomcatlogwatcher.userinterface.screens;
 
 import org.tomcatlogwatcher.core.AccessLogDbOperationService;
 import org.tomcatlogwatcher.core.AccessLogFileOperationService;
@@ -15,6 +15,7 @@ import org.tomcatlogwatcher.dto.AccessLogInfoDTO;
 import org.tomcatlogwatcher.dto.ActionDTO;
 import org.tomcatlogwatcher.dto.HTMLTextDTO;
 import org.tomcatlogwatcher.userinterface.adapters.AccessLogTableMouseAdapter;
+import org.tomcatlogwatcher.userinterface.models.LogEntryTableModel;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableCellRenderer;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableNormalCellRenderer;
 import org.tomcatlogwatcher.userinterface.renderers.AccessLogTableWrappedCellRenderer;
@@ -23,7 +24,6 @@ import org.tomcatlogwatcher.utility.UIUtils;
 import org.tomcatlogwatcher.utility.Utils;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
@@ -222,9 +222,11 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
 
             }
         ));
-        accessLogTbl.setEnabled(false);
+        accessLogTbl.setCellSelectionEnabled(true);
         accessLogTbl.setRowHeight(50);
         accessLogTbl.setRowMargin(5);
+        accessLogTbl.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        accessLogTbl.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane2.setViewportView(accessLogTbl);
         customizeAccessLogTable();
 
@@ -298,13 +300,12 @@ public class AccessLogViewScreen extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(resetOrderBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(queryButtonsFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(queryButtonsFrameLayout.createSequentialGroup()
-                            .addComponent(prevQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(nextQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addComponent(execQueryBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(clearFilterBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, queryButtonsFrameLayout.createSequentialGroup()
+                        .addComponent(prevQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nextQueryBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(execQueryBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(clearFilterBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         queryButtonsFrameLayout.setVerticalGroup(

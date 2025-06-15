@@ -9,7 +9,7 @@ import net.sf.jasperreports.engine.type.StretchTypeEnum;
 import net.sf.jasperreports.export.*;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import org.tomcatlogwatcher.dto.ActionDTO;
-import org.tomcatlogwatcher.userinterface.LogEntryTableModel;
+import org.tomcatlogwatcher.userinterface.models.LogEntryTableModel;
 import org.tomcatlogwatcher.utility.AppLogger;
 
 import javax.swing.table.TableModel;

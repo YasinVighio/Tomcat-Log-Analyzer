@@ -1,4 +1,4 @@
-package org.tomcatlogwatcher.userinterface;
+package org.tomcatlogwatcher.userinterface.models;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
@@ -21,6 +21,11 @@ public class LogEntryTableModel extends DefaultTableModel {
     @Override
     public Object getValueAt(int row, int column) {
         return super.getValueAt(row, column);
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false; // no cell is editable
     }
 }
 

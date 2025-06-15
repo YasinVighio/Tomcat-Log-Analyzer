@@ -2,7 +2,7 @@ package org.tomcatlogwatcher;
 
 import org.tomcatlogwatcher.core.PropManager;
 import org.tomcatlogwatcher.dataaccess.DBConnector;
-import org.tomcatlogwatcher.userinterface.AccessLogViewScreen;
+import org.tomcatlogwatcher.userinterface.screens.AccessLogViewScreen;
 import org.tomcatlogwatcher.utility.AppLogger;
 
 import javax.swing.*;

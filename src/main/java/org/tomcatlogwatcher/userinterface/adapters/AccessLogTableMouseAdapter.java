@@ -62,11 +62,12 @@ public class AccessLogTableMouseAdapter extends MouseInputAdapter {
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        Window window = SwingUtilities.getWindowAncestor(table);
         int row = table.rowAtPoint(e.getPoint());
         if (row >= 0 && isInResizeZone(e, row)) {
-            table.setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+            window.setCursor(Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
         } else {
-            table.setCursor(Cursor.getDefaultCursor());
+            window.setCursor(Cursor.getDefaultCursor());
         }
     }
 
